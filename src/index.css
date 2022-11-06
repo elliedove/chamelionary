@@ -20,6 +20,52 @@ body {
   width: 15%;
 }
 
+.whiteboard {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}
+
+.whiteboard {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}
+
+.colors {
+  position: fixed;
+}
+
+.color {
+  display: inline-block;
+  height: 48px;
+  width: 48px;
+}
+
+.color.black {
+  background-color: black;
+}
+.color.red {
+  background-color: red;
+}
+.color.green {
+  background-color: green;
+}
+.color.blue {
+  background-color: blue;
+}
+.color.yellow {
+  background-color: yellow;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;

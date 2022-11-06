@@ -20,6 +20,8 @@ io.on("connection", (socket) => {
     // send it to everyone connected
     if (message.startsWith("/name")) {
       var newName = message.slice(6);
+
+      // TODO: length validate and check for special characters
       gameInfo["names"][socket.id] = newName;
       socket.broadcast.emit("receive-message", newName + " has joined!");
     } else if (message.startsWith("/color")) {
@@ -41,5 +43,9 @@ io.on("connection", (socket) => {
     }
 
     console.log(gameInfo);
+  });
+
+  socket.on("drawing", (data) => {
+    socket.broadcast.emit("drawing", data);
   });
 });
