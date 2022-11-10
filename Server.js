@@ -10,11 +10,39 @@ const io = require("socket.io")(3030, {
 var gameInfo = {
   names: {},
   colors: {},
+  ready: {},
 };
 
 io.on("connection", (socket) => {
   console.log(socket.id);
+  // add their ID to ready list
+  gameInfo["ready"][socket.id] = false;
 
+  // ready up received
+  socket.on("ready-up", () => {
+    console.log(socket.id + " has readied up");
+    // add their ready up to the list
+    gameInfo["ready"][socket.id] = true;
+
+    console.log("checking if everone is ready...");
+    // if all clients connected are ready, tell clients to start the game
+    var someoneNotReady = false;
+
+    for (var id in gameInfo["ready"]) {
+      if (gameInfo["ready"][id] === false) {
+        someoneNotReady = true;
+      }
+    }
+
+    // everyone is ready
+    if (!someoneNotReady) {
+      console.log("everyone is ready, starting game...");
+      // emit start game message
+      io.sockets.emit("lobby-ready");
+    } else {
+      console.log("not everyone is ready, not starting game...");
+    }
+  });
   // someone sent a message
   socket.on("send-message", (message) => {
     // send it to everyone connected
