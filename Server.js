@@ -13,10 +13,18 @@ var gameInfo = {
   ready: {},
 };
 
+var gameStarted = false;
+var linesDrawn = [];
+
 io.on("connection", (socket) => {
   console.log(socket.id);
   // add their ID to ready list
   gameInfo["ready"][socket.id] = false;
+
+  if (gameStarted) {
+    // skip the 'join' screen - the game has already started
+    io.to(socket.id).emit("lobby-ready");
+  }
 
   // ready up received
   socket.on("ready-up", () => {
@@ -39,6 +47,7 @@ io.on("connection", (socket) => {
       console.log("everyone is ready, starting game...");
       // emit start game message
       io.sockets.emit("lobby-ready");
+      gameStarted = true;
     } else {
       console.log("not everyone is ready, not starting game...");
     }
@@ -74,6 +83,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("drawing", (data) => {
+    linesDrawn.push(data);
     socket.broadcast.emit("drawing", data);
   });
 });
