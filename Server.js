@@ -35,10 +35,14 @@ io.on("connection", (socket) => {
     console.log("checking if everone is ready...");
     // if all clients connected are ready, tell clients to start the game
     var someoneNotReady = false;
+    var totalConnected = Object.keys(gameInfo["ready"]).length;
+    var countReady = 0;
 
     for (var id in gameInfo["ready"]) {
       if (gameInfo["ready"][id] === false) {
         someoneNotReady = true;
+      } else {
+        countReady++;
       }
     }
 
@@ -49,6 +53,7 @@ io.on("connection", (socket) => {
       io.sockets.emit("lobby-ready");
       gameStarted = true;
     } else {
+      io.sockets.emit("lobby-not-ready", [countReady, totalConnected]);
       console.log("not everyone is ready, not starting game...");
     }
   });

@@ -11,6 +11,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [lobbyReady, setLobbyReady] = useState(false);
   const [clientReady, setClientReady] = useState(false);
+  const [readyInfo, setReadyInfo] = useState([0, 0]);
 
   const canvasRef = useRef(null);
   const colorsRef = useRef(null);
@@ -32,11 +33,17 @@ function App() {
     };
   }, []);
 
+  // re-render canvas
   useEffect(() => {
     if (lobbyReady) {
       Canvas(socket, canvasRef);
     }
   });
+
+  // chatbox scroll to bottom effect
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   // received a message from socket
   socket.on("receive-message", (receivedMessage) => {
@@ -48,12 +55,28 @@ function App() {
     setLobbyReady(true);
   });
 
+  socket.on("lobby-not-ready", (data) => {
+    setReadyInfo([data[0], data[1]]);
+  });
+
   const handleMessageChange = (event) => {
     setCurrMessage(event.target.value);
   };
 
   const handleSendClick = (event) => {
     sendMessage();
+  };
+
+  const handleSendEnter = (event) => {
+    if (event.key === "Enter" || event.code === "NumpadEnter") {
+      sendMessage();
+    }
+  };
+
+  const handleReadyClick = () => {
+    setClientReady(true);
+    // tell server we are ready
+    socket.emit("ready-up");
   };
 
   const sendMessage = () => {
@@ -66,16 +89,6 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSendEnter = (event) => {
-    if (event.key === "Enter" || event.code === "NumpadEnter") {
-      sendMessage();
-    }
-  };
-
   const readyButtonText = () => {
     if (clientReady) {
       return "waiting on others...";
@@ -84,18 +97,17 @@ function App() {
     }
   };
 
-  const handleReadyClick = () => {
-    setClientReady(true);
-    // tell server we are ready
-    socket.emit("ready-up");
-  };
-
   return (
     <div id="App" className="App">
       {!lobbyReady && (
-        <button className="btn" onClick={handleReadyClick}>
-          {readyButtonText()}
-        </button>
+        <div>
+          <button className="btn" onClick={handleReadyClick}>
+            {readyButtonText()}
+          </button>
+          <p>
+            {readyInfo[0]}/{readyInfo[1]} players are ready
+          </p>
+        </div>
       )}
 
       {lobbyReady && (
