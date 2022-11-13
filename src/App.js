@@ -12,6 +12,7 @@ function App() {
   const [lobbyReady, setLobbyReady] = useState(false);
   const [clientReady, setClientReady] = useState(false);
   const [readyInfo, setReadyInfo] = useState([0, 0]);
+  const [word, setWord] = useState("");
 
   const canvasRef = useRef(null);
   const colorsRef = useRef(null);
@@ -51,8 +52,9 @@ function App() {
   });
 
   // receive signal from server that everyone is ready
-  socket.on("lobby-ready", () => {
+  socket.on("lobby-ready", (wordSent) => {
     setLobbyReady(true);
+    setWord(wordSent);
   });
 
   socket.on("lobby-not-ready", (data) => {
@@ -113,6 +115,9 @@ function App() {
       {lobbyReady && (
         <div>
           <canvas ref={canvasRef} className="whiteboard" />
+          <div class="word">
+            <h1>{word}</h1>
+          </div>
           <div className="bg-gray-200 absolute inset-y-24 right-10 w-1/4 max-w-sm rounded shadow-lg overflow-scroll">
             <ul id="chat-container" className="text-left">
               {messages.map((msg, i) => (
