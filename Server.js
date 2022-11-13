@@ -118,8 +118,37 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("receive-message", "Anon: " + message);
       }
     }
-
     console.log(gameInfo);
+  });
+
+  // client sent disconnect
+  socket.on("disconnect", () => {
+    console.log(socket.id + " has disconnected");
+    // remove all related info
+    if (socket.id in gameInfo["names"]) {
+      delete gameInfo["names"][socket.id];
+    }
+    if (socket.id in gameInfo["ready"]) {
+      // tell users to decement their 'ready' counts
+      if (gameInfo["ready"][socket.id]) {
+        numberReady--;
+      }
+      delete gameInfo["ready"][socket.id];
+    }
+    if (socket.id in gameInfo["colors"]) {
+      delete gameInfo["colors"][socket.id];
+    }
+    var totalConnected = Object.keys(gameInfo["ready"]).length;
+    socket.broadcast.emit("lobby-not-ready", [numberReady, totalConnected]);
+
+    // must recheck if all are ready
+    // this is in the case that the person who left was the only unready person
+    if (numberReady === totalConnected) {
+      currWord = chooseWord("animals.txt");
+
+      // emit start game message
+      io.sockets.emit("lobby-ready", [currWord]);
+    }
   });
 
   socket.on("drawing", (data) => {
