@@ -148,6 +148,7 @@ io.on("connection", (socket) => {
 
       // emit start game message
       io.sockets.emit("lobby-ready", [currWord]);
+      gameStarted = true;
     }
   });
 
