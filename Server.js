@@ -20,17 +20,16 @@ var gameInfo = {
 var gameStarted = false;
 var linesDrawn = [];
 var numberReady = 0;
+var currWord = "";
 
 function chooseWord(filename) {
   // read in words from file line-by-line
   try {
     const contents = fs.readFileSync(filename, "UTF-8");
     const arr = contents.split(/\r?\n/);
-    //console.log(arr);
 
     // get random word from array
     const word = arr[Math.floor(Math.random() * arr.length)];
-    //console.log(word);
 
     // return the word
     return word;
@@ -44,12 +43,14 @@ io.on("connection", (socket) => {
   // add their ID to ready list
   gameInfo["ready"][socket.id] = false;
 
+  // give readied up info
   var totalConnected = Object.keys(gameInfo["ready"]).length;
   io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);
 
+  // if joining an already started game
   if (gameStarted) {
-    // skip the 'join' screen - the game has already started
-    io.to(socket.id).emit("lobby-ready");
+    // skip lobby, give current word
+    io.to(socket.id).emit("lobby-ready", [currWord]);
   }
 
   // ready up received
@@ -76,13 +77,14 @@ io.on("connection", (socket) => {
 
     // everyone is ready
     if (!someoneNotReady) {
-      console.log("everyone is ready, starting game...");
+      console.log("everyone is ready, starting game, sending message...");
 
       // choose a random word
-      wordToSend = chooseWord("animals.txt");
+      // TODO: this is slow, move it to server start-up
+      currWord = chooseWord("animals.txt");
 
       // emit start game message
-      io.sockets.emit("lobby-ready", [wordToSend]);
+      io.sockets.emit("lobby-ready", [currWord]);
       gameStarted = true;
     } else {
       io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);
