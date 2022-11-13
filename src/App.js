@@ -13,6 +13,7 @@ function App() {
   const [clientReady, setClientReady] = useState(false);
   const [readyInfo, setReadyInfo] = useState([0, 0]);
   const [word, setWord] = useState("");
+  const [isDrawer, setDrawerInfo] = useState(false);
 
   const canvasRef = useRef(null);
   const colorsRef = useRef(null);
@@ -59,6 +60,10 @@ function App() {
 
   socket.on("lobby-not-ready", (data) => {
     setReadyInfo([data[0], data[1]]);
+  });
+
+  socket.on("drawer-check", (isDrawer) => {
+    setDrawerInfo(isDrawer);
   });
 
   const handleMessageChange = (event) => {
@@ -152,7 +157,7 @@ function App() {
 
           <div className="flex flex-row items-center justify-center gap-4">
             <div className="flex-1"></div>
-            <h1 className="">{word}</h1>
+            <h1 className="">{word} {isDrawer ? "drawer" : "spectator"}</h1>
 
             <div className="flex-1">
               <div className="mt-4 ml-24">
