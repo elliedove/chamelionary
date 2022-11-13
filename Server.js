@@ -9,6 +9,7 @@ const io = require("socket.io")(3030, {
 const fs = require("fs");
 const readline = require("readline");
 const readFile = require("readFile");
+const { send } = require("process");
 
 // associates socket IDs with names and colors
 var gameInfo = {
@@ -37,6 +38,34 @@ function chooseWord(filename) {
   } catch (err) {
     console.log(err);
   }
+}
+
+function sendLobbyReady(numberReady) {
+
+  // pick random number between 0 and totalConnected
+  console.log(numberReady);
+  const index = Math.floor(Math.random() * numberReady);
+  console.log(index);
+
+  // assign that index in the array of socket identifiers as the bluffer
+  var allKeys = Object.keys(gameInfo["ready"])
+  var bluffer_id = allKeys[index];
+  gameInfo["bluffer"][bluffer_id] = true;
+
+  // choose a random word
+  // TODO: this is slow, move it to server start-up
+  currWord = chooseWord("animals.txt");
+
+  // emit start game message
+  for (i = 0; i < numberReady; i++){
+    if (gameInfo["bluffer"][allKeys[i]] === true){
+      io.to(allKeys[i]).emit("lobby-ready", "");
+    }
+    else{
+      io.to(allKeys[i]).emit("lobby-ready", [currWord]);
+    }
+  }
+  
 }
 
 io.on("connection", (socket) => {
@@ -72,31 +101,7 @@ io.on("connection", (socket) => {
     if (numberReady === totalConnected) {
       console.log("everyone is ready, starting game, sending message...");
 
-      // TODO: implement if a player is a bluffer or not
-      // pick random number between 0 and totalConnected
-      console.log(numberReady);
-      const index = Math.floor(Math.random() * numberReady);
-      console.log(index);
-
-      // assign that index in the array of socket identifiers as the bluffer
-      var allKeys = Object.keys(gameInfo["ready"])
-      var bluffer_id = allKeys[index];
-      gameInfo["bluffer"][bluffer_id] = true;
-
-      // choose a random word
-      // TODO: this is slow, move it to server start-up
-      currWord = chooseWord("animals.txt");
-
-      // emit start game message
-      //io.sockets.emit("lobby-ready", [currWord]);
-      for (i = 0; i < numberReady; i++){
-        if (gameInfo["bluffer"][allKeys[i]] === true){
-          io.to(allKeys[i]).emit("lobby-ready", "");
-        }
-        else{
-          io.to(allKeys[i]).emit("lobby-ready", [currWord]);
-        }
-      }
+      sendLobbyReady(numberReady);
 
       gameStarted = true;
     } else {
@@ -166,10 +171,9 @@ io.on("connection", (socket) => {
     // must recheck if all are ready
     // this is in the case that the person who left was the only unready person
     if (numberReady === totalConnected) {
-      currWord = chooseWord("animals.txt");
+      
+      sendLobbyReady(numberReady);
 
-      // emit start game message
-      io.sockets.emit("lobby-ready", [currWord]);
       gameStarted = true;
     }
   });
