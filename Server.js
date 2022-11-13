@@ -1,5 +1,3 @@
-const colorNames = require("daisyui/src/colors/colorNames");
-
 const io = require("socket.io")(3030, {
   cors: {
     origin: ["http://localhost:3000"],
@@ -7,8 +5,6 @@ const io = require("socket.io")(3030, {
 });
 
 const fs = require("fs");
-const readline = require("readline");
-const readFile = require("readFile");
 
 // associates socket IDs with names and colors
 var gameInfo = {
@@ -79,7 +75,7 @@ io.on("connection", (socket) => {
       console.log(index);
 
       // assign that index in the array of socket identifiers as the bluffer
-      var allKeys = Object.keys(gameInfo["ready"])
+      var allKeys = Object.keys(gameInfo["ready"]);
       var bluffer_id = allKeys[index];
       gameInfo["bluffer"][bluffer_id] = true;
 
@@ -88,12 +84,10 @@ io.on("connection", (socket) => {
       currWord = chooseWord("animals.txt");
 
       // emit start game message
-      //io.sockets.emit("lobby-ready", [currWord]);
-      for (i = 0; i < numberReady; i++){
-        if (gameInfo["bluffer"][allKeys[i]] === true){
-          io.to(allKeys[i]).emit("lobby-ready", "");
-        }
-        else{
+      for (i = 0; i < numberReady; i++) {
+        if (gameInfo["bluffer"][allKeys[i]] === true) {
+          io.to(allKeys[i]).emit("lobby-ready", "bluffer");
+        } else {
           io.to(allKeys[i]).emit("lobby-ready", [currWord]);
         }
       }
