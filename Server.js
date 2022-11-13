@@ -1,5 +1,3 @@
-const colorNames = require("daisyui/src/colors/colorNames");
-
 const io = require("socket.io")(3030, {
   cors: {
     origin: ["http://localhost:3000"],
@@ -7,9 +5,6 @@ const io = require("socket.io")(3030, {
 });
 
 const fs = require("fs");
-const readline = require("readline");
-const readFile = require("readFile");
-const { send } = require("process");
 
 // associates socket IDs with names and colors
 var gameInfo = {
