@@ -102,22 +102,21 @@ function App() {
   return (
     <div id="App" className="App">
       {!lobbyReady && (
-        <div>
-          <button className="btn" onClick={handleReadyClick}>
-            {readyButtonText()}
-          </button>
-          <p>
-            {readyInfo[0]}/{readyInfo[1]} players are ready
-          </p>
+        <div className="flex items-center justify-center min-h-screen w-full">
+          <div>
+            <button className="btn" onClick={handleReadyClick}>
+              {readyButtonText()}
+            </button>
+            <p>
+              {readyInfo[0]}/{readyInfo[1]} players are ready
+            </p>
+          </div>
         </div>
       )}
 
       {lobbyReady && (
         <div>
           <canvas ref={canvasRef} className="whiteboard" />
-          <div class="word">
-            <h1>{word}</h1>
-          </div>
           <div className="bg-gray-200 absolute inset-y-24 right-10 w-1/4 max-w-sm rounded shadow-lg overflow-scroll">
             <ul id="chat-container" className="text-left">
               {messages.map((msg, i) => (
@@ -142,12 +141,22 @@ function App() {
               </button>
             </div>
           </div>
-          <div ref={colorsRef} className="colors">
-            <div className="color black" />
-            <div className="color red" />
-            <div className="color green" />
-            <div className="color blue" />
-            <div className="color yellow" />
+
+          <div className="flex flex-row items-center justify-center gap-4">
+            <div class="flex-1"></div>
+            <h1 className="">{word}</h1>
+
+            <div className="flex-1">
+              <div className="mt-4 ml-24">
+                <div ref={colorsRef} className="colors">
+                  <div className="color black" />
+                  <div className="color red" />
+                  <div className="color green" />
+                  <div className="color blue" />
+                  <div className="color yellow" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
