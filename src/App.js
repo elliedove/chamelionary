@@ -76,9 +76,17 @@ function App() {
   };
 
   const handleReadyClick = () => {
-    setClientReady(true);
-    // tell server we are ready
-    socket.emit("ready-up");
+    // ready up
+    if (!clientReady) {
+      setClientReady(true);
+      // tell server we are ready
+      socket.emit("ready-up");
+    }
+    // unready
+    else {
+      setClientReady(false);
+      socket.emit("unready");
+    }
   };
 
   const sendMessage = () => {

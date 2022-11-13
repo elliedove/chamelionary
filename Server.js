@@ -59,24 +59,14 @@ io.on("connection", (socket) => {
     // add their ready up to the list
     gameInfo["ready"][socket.id] = true;
 
-    console.log("checking if everone is ready...");
+    console.log("checking if everyone is ready...");
+
     // if all clients connected are ready, tell clients to start the game
-    var someoneNotReady = false;
     var totalConnected = Object.keys(gameInfo["ready"]).length;
-    var countReady = 0;
-
-    for (var id in gameInfo["ready"]) {
-      if (gameInfo["ready"][id] === false) {
-        someoneNotReady = true;
-      } else {
-        countReady++;
-      }
-    }
-
-    numberReady = countReady;
+    numberReady++;
 
     // everyone is ready
-    if (!someoneNotReady) {
+    if (numberReady === totalConnected) {
       console.log("everyone is ready, starting game, sending message...");
 
       // choose a random word
@@ -90,6 +80,15 @@ io.on("connection", (socket) => {
       io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);
       console.log("not everyone is ready, not starting game...");
     }
+  });
+
+  socket.on("unready", () => {
+    console.log(socket.id + " has unreadied");
+    // add their ready up to the list
+    gameInfo["ready"][socket.id] = false;
+    numberReady--;
+    var totalConnected = Object.keys(gameInfo["ready"]).length;
+    io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);
   });
 
   // someone sent a message
