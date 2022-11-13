@@ -39,7 +39,7 @@ function App() {
     if (lobbyReady) {
       Canvas(socket, canvasRef);
     }
-  });
+  }, [lobbyReady]);
 
   // chatbox scroll to bottom effect
   useEffect(() => {
@@ -143,7 +143,7 @@ function App() {
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4">
-            <div class="flex-1"></div>
+            <div className="flex-1"></div>
             <h1 className="">{word}</h1>
 
             <div className="flex-1">

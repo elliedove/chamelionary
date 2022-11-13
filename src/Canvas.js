@@ -1,6 +1,11 @@
 // --------------- getContext() method returns a drawing context on the canvas-----
 function Canvas(socket, canvasRef) {
   const canvas = canvasRef.current;
+  // do nothing if canvas undefined
+  if (canvas === null || canvas === undefined) {
+    return;
+  }
+
   const context = canvas.getContext("2d");
 
   // ----------------------- Colors --------------------------------------------------
