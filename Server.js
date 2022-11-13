@@ -7,8 +7,8 @@ const io = require("socket.io")(3030, {
 });
 
 const fs = require("fs");
-const readline = require('readline');
-const readFile = require('readFile');
+const readline = require("readline");
+const readFile = require("readFile");
 
 // associates socket IDs with names and colors
 var gameInfo = {
@@ -20,6 +20,24 @@ var gameInfo = {
 var gameStarted = false;
 var linesDrawn = [];
 var numberReady = 0;
+
+function chooseWord(filename) {
+  // read in words from file line-by-line
+  try {
+    const contents = fs.readFileSync(filename, "UTF-8");
+    const arr = contents.split(/\r?\n/);
+    //console.log(arr);
+
+    // get random word from array
+    const word = arr[Math.floor(Math.random() * arr.length)];
+    //console.log(word);
+
+    // return the word
+    return word;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 io.on("connection", (socket) => {
   console.log(socket.id);
@@ -66,29 +84,12 @@ io.on("connection", (socket) => {
       // emit start game message
       io.sockets.emit("lobby-ready", [wordToSend]);
       gameStarted = true;
-
     } else {
       io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);
       console.log("not everyone is ready, not starting game...");
     }
   });
-  function chooseWord(filename){
-    // read in words from file line-by-line
-    try{
-      const contents = fs.readFileSync(filename, 'UTF-8');
-      const arr = contents.split(/\r?\n/);
-      //console.log(arr);
 
-      // get random word from array
-      const word = arr[Math.floor(Math.random() * arr.length)];
-      //console.log(word);
-
-      // return the word
-      return word;
-    } catch (err){
-      console.log(err);
-    }
-  }
   // someone sent a message
   socket.on("send-message", (message) => {
     // send it to everyone connected
