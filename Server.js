@@ -5,6 +5,7 @@ const io = require("socket.io")(3030, {
 });
 
 const fs = require("fs");
+const { toUSVString } = require("util");
 
 const NUM_COLORS = 5;
 
@@ -16,6 +17,7 @@ var gameInfo = {
   bluffer: {},
 };
 
+var playerOrder = [];
 var gameStarted = false;
 var linesDrawn = [];
 var numberReady = 0;
@@ -59,6 +61,63 @@ function sendLobbyReady(numberReady) {
       io.to(allKeys[i]).emit("lobby-ready", [currWord]);
     }
   }
+  // start playing the game
+  playGame(numberReady);
+  
+}
+
+function playGame(numberReady){
+
+  // boolean to hold whether game is over or not
+  var gameOver = false;
+  // counter to loop over allKeys
+  var i = 0;
+  // list of all socket ids that are ready
+  var allKeys = Object.keys(gameInfo["ready"]);
+  // print player order
+  console.log("player order: ", playerOrder);
+
+  // loop over ready socket ids 
+  //do{
+    // get current socket who will be drawer
+    currDrawer = playerOrder[i%numberReady];
+    // print the current drawer
+    console.log("current drawer is: ", currDrawer);
+
+    // loop over sockets and say you're drawer or spectator
+    for (j = 0; j < numberReady; j++){
+      // you're the drawer
+      if (allKeys[j] === currDrawer){
+        console.log("drawer: ", allKeys[j]);
+        io.to(allKeys[j]).emit("drawer-check", 1);
+      }
+      // not the drawer
+      else{
+        console.log("spectator: ", allKeys[j]);
+        io.to(allKeys[j]).emit("drawer-check", 0);
+      }
+    }
+
+    // TODO: implement conditions for when a turn starts and is over
+    //turn()
+
+    i = i + 1;
+    gameOver = checkGameOver();
+  //} while(!gameOver);
+
+}
+
+function turn(){
+
+  console.log("a turn is happening...");
+
+}
+
+function checkGameOver(){
+
+  // TODO: implement condition to determine if game is over
+  return false;
+
 }
 
 io.on("connection", (socket) => {
@@ -91,6 +150,8 @@ io.on("connection", (socket) => {
     console.log(socket.id + " has readied up");
     // add their ready up to the list
     gameInfo["ready"][socket.id] = true;
+    // add socket to player order
+    playerOrder.push(socket.id);
 
     console.log("checking if everyone is ready...");
 
@@ -115,6 +176,8 @@ io.on("connection", (socket) => {
     console.log(socket.id + " has unreadied");
     // add their ready up to the list
     gameInfo["ready"][socket.id] = false;
+    // if player unreadies, remove them from player order list
+    playerOrder.splice(playerOrder.indexOf(socket.id));
     numberReady--;
     var totalConnected = Object.keys(gameInfo["ready"]).length;
     io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);

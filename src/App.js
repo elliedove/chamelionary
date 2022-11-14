@@ -14,6 +14,7 @@ function App() {
   const [readyInfo, setReadyInfo] = useState([0, 0]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [word, setWord] = useState("");
+  const [isDrawer, setDrawerInfo] = useState(false);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -59,6 +60,10 @@ function App() {
 
   socket.on("lobby-not-ready", (data) => {
     setReadyInfo([data[0], data[1]]);
+  });
+
+  socket.on("drawer-check", (isDrawer) => {
+    setDrawerInfo(isDrawer);
   });
 
   const handleMessageChange = (event) => {
