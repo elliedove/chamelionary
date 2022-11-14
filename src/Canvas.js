@@ -1,5 +1,6 @@
-// --------------- getContext() method returns a drawing context on the canvas-----
-function Canvas(socket, canvasRef) {
+function Canvas(socket, canvasRef, selectedColorIdx) {
+  const allColors = ["blue", "green", "yellow", "red", "purple", "magenta"];
+
   const canvas = canvasRef.current;
   // do nothing if canvas undefined
   if (canvas === null || canvas === undefined) {
@@ -7,24 +8,12 @@ function Canvas(socket, canvasRef) {
   }
 
   const context = canvas.getContext("2d");
-
-  // ----------------------- Colors --------------------------------------------------
-
-  const colors = document.getElementsByClassName("color");
   // set the current color
+  // TODO: adjust color depending on chosen color/color given
   const current = {
-    color: "black",
+    color: allColors[selectedColorIdx],
   };
 
-  // helper that will update the current color
-  const onColorUpdate = (e) => {
-    current.color = e.target.className.split(" ")[1];
-  };
-
-  // loop through the color elements and add the click event listeners
-  for (let i = 0; i < colors.length; i++) {
-    colors[i].addEventListener("click", onColorUpdate, false);
-  }
   let drawing = false;
 
   // ------------------------------- create the drawing ----------------------------
@@ -70,6 +59,7 @@ function Canvas(socket, canvasRef) {
       current.y,
       e.clientX || e.touches[0].clientX,
       e.clientY || e.touches[0].clientY,
+      // TODO: this will have to be the variable representing the proper color
       current.color,
       true
     );
@@ -133,7 +123,13 @@ function Canvas(socket, canvasRef) {
   const onDrawingEvent = (data) => {
     const w = canvas.width;
     const h = canvas.height;
-    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+    drawLine(
+      data.x0 * w,
+      data.y0 * h,
+      data.x1 * w,
+      data.y1 * h,
+      allColors[data.color]
+    );
   };
 
   socket.on("drawing", onDrawingEvent);

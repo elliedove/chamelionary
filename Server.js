@@ -6,6 +6,8 @@ const io = require("socket.io")(3030, {
 
 const fs = require("fs");
 
+const NUM_COLORS = 5;
+
 // associates socket IDs with names and colors
 var gameInfo = {
   names: {},
@@ -36,31 +38,27 @@ function chooseWord(filename) {
 }
 
 function sendLobbyReady(numberReady) {
-
   // pick random number between 0 and totalConnected
-  console.log(numberReady);
   const index = Math.floor(Math.random() * numberReady);
-  console.log(index);
 
   // assign that index in the array of socket identifiers as the bluffer
-  var allKeys = Object.keys(gameInfo["ready"])
+  var allKeys = Object.keys(gameInfo["ready"]);
   var bluffer_id = allKeys[index];
   gameInfo["bluffer"][bluffer_id] = true;
+  console.log("picked bluffer: " + bluffer_id);
 
   // choose a random word
   // TODO: this is slow, move it to server start-up
   currWord = chooseWord("animals.txt");
 
   // emit start game message
-  for (i = 0; i < numberReady; i++){
-    if (gameInfo["bluffer"][allKeys[i]] === true){
+  for (i = 0; i < numberReady; i++) {
+    if (gameInfo["bluffer"][allKeys[i]] === true) {
       io.to(allKeys[i]).emit("lobby-ready", "");
-    }
-    else{
+    } else {
       io.to(allKeys[i]).emit("lobby-ready", [currWord]);
     }
   }
-  
 }
 
 io.on("connection", (socket) => {
@@ -78,6 +76,14 @@ io.on("connection", (socket) => {
   if (gameStarted) {
     // skip lobby, give current word
     io.to(socket.id).emit("lobby-ready", [currWord]);
+    // give them the first available color
+    for (var i = 0; i <= NUM_COLORS; i++) {
+      if (!Object.values(gameInfo["colors"]).includes(i)) {
+        gameInfo["colors"][socket.id] = i;
+        break;
+      }
+    }
+    io.to(socket.id).emit("select-color", gameInfo["colors"][socket.id]);
   }
 
   // ready up received
@@ -140,7 +146,6 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("receive-message", "Anon: " + message);
       }
     }
-    console.log(gameInfo);
   });
 
   // client sent disconnect
@@ -165,16 +170,41 @@ io.on("connection", (socket) => {
 
     // must recheck if all are ready
     // this is in the case that the person who left was the only unready person
-    if (numberReady === totalConnected) {
-      
+    if (numberReady === totalConnected && totalConnected > 1) {
       sendLobbyReady(numberReady);
 
       gameStarted = true;
     }
   });
 
+  // client trying to select color
+  socket.on("select-color", (colorIndex) => {
+    // selected the color they already have -> do nothing
+    if (gameInfo["colors"][socket.id] === colorIndex) {
+      return;
+    }
+
+    // see if anyone else has picked this color + is valid
+    if (
+      Object.values(gameInfo["colors"]).includes(colorIndex) ||
+      colorIndex > NUM_COLORS
+    ) {
+      // send -1 if invalid color
+      gameInfo["colors"][socket.id] = -1;
+      io.to(socket.id).emit("select-color", -1);
+    } else {
+      // successful color -> store it, send it back
+      gameInfo["colors"][socket.id] = colorIndex;
+      io.to(socket.id).emit("select-color", colorIndex);
+      console.log(socket.id + " has been given color " + colorIndex);
+    }
+  });
+
   socket.on("drawing", (data) => {
     linesDrawn.push(data);
+    // get this person's color
+    var color = gameInfo["colors"][socket.id];
+    data.color = color;
     socket.broadcast.emit("drawing", data);
   });
 });
