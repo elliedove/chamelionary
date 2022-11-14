@@ -63,11 +63,9 @@ function sendLobbyReady(numberReady) {
   }
   // start playing the game
   playGame(numberReady);
-  
 }
 
-function playGame(numberReady){
-
+function playGame(numberReady) {
   // boolean to hold whether game is over or not
   var gameOver = false;
   // counter to loop over allKeys
@@ -77,47 +75,42 @@ function playGame(numberReady){
   // print player order
   console.log("player order: ", playerOrder);
 
-  // loop over ready socket ids 
+  // loop over ready socket ids
   //do{
-    // get current socket who will be drawer
-    currDrawer = playerOrder[i%numberReady];
-    // print the current drawer
-    console.log("current drawer is: ", currDrawer);
+  // get current socket who will be drawer
+  currDrawer = playerOrder[i % numberReady];
+  // print the current drawer
+  console.log("current drawer is: ", currDrawer);
 
-    // loop over sockets and say you're drawer or spectator
-    for (j = 0; j < numberReady; j++){
-      // you're the drawer
-      if (allKeys[j] === currDrawer){
-        console.log("drawer: ", allKeys[j]);
-        io.to(allKeys[j]).emit("drawer-check", 1);
-      }
-      // not the drawer
-      else{
-        console.log("spectator: ", allKeys[j]);
-        io.to(allKeys[j]).emit("drawer-check", 0);
-      }
+  // loop over sockets and say you're drawer or spectator
+  for (j = 0; j < numberReady; j++) {
+    // you're the drawer
+    if (allKeys[j] === currDrawer) {
+      console.log("drawer: ", allKeys[j]);
+      io.to(allKeys[j]).emit("drawer-check", 1);
     }
+    // not the drawer
+    else {
+      console.log("spectator: ", allKeys[j]);
+      io.to(allKeys[j]).emit("drawer-check", 0);
+    }
+  }
 
-    // TODO: implement conditions for when a turn starts and is over
-    //turn()
+  // TODO: implement conditions for when a turn starts and is over
+  //turn()
 
-    i = i + 1;
-    gameOver = checkGameOver();
+  i = i + 1;
+  gameOver = checkGameOver();
   //} while(!gameOver);
-
 }
 
-function turn(){
-
+function turn() {
   console.log("a turn is happening...");
-
 }
 
-function checkGameOver(){
-
+function checkGameOver() {
   // TODO: implement condition to determine if game is over
   return false;
-
 }
 
 io.on("connection", (socket) => {
@@ -192,13 +185,6 @@ io.on("connection", (socket) => {
       // TODO: length validate and check for special characters
       gameInfo["names"][socket.id] = newName;
       socket.broadcast.emit("receive-message", newName + " has joined!");
-    } else if (message.startsWith("/color")) {
-      // validate the color code
-      var reg = /^#([0-9a-f]{3}){1,2}$/i;
-      var newColor = message.slice(7);
-      if (reg.test(newColor)) {
-        gameInfo["colors"][socket.id] = newColor;
-      }
     } else {
       if (gameInfo["names"][socket.id]) {
         socket.broadcast.emit(
