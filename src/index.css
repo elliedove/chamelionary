@@ -43,28 +43,6 @@ body {
   top: 0;
 }
 
-.color {
-  display: inline-block;
-  height: 48px;
-  width: 48px;
-}
-
-.color.black {
-  background-color: black;
-}
-.color.red {
-  background-color: red;
-}
-.color.green {
-  background-color: green;
-}
-.color.blue {
-  background-color: blue;
-}
-.color.yellow {
-  background-color: yellow;
-}
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;

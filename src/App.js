@@ -12,11 +12,11 @@ function App() {
   const [lobbyReady, setLobbyReady] = useState(false);
   const [clientReady, setClientReady] = useState(false);
   const [readyInfo, setReadyInfo] = useState([0, 0]);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [word, setWord] = useState("");
   const [isDrawer, setDrawerInfo] = useState(false);
 
   const canvasRef = useRef(null);
-  const colorsRef = useRef(null);
   const messagesEndRef = createRef();
 
   useEffect(() => {
@@ -38,7 +38,7 @@ function App() {
   // re-render canvas
   useEffect(() => {
     if (lobbyReady) {
-      Canvas(socket, canvasRef);
+      Canvas(socket, canvasRef, selectedColor);
     }
   }, [lobbyReady]);
 
@@ -81,6 +81,11 @@ function App() {
   };
 
   const handleReadyClick = () => {
+    // do nothing if color not selected
+    if (selectedColor === -1 || selectedColor === null) {
+      return;
+    }
+
     // ready up
     if (!clientReady) {
       setClientReady(true);
@@ -112,6 +117,15 @@ function App() {
     }
   };
 
+  const handleColorClick = (btnIdx) => {
+    socket.emit("select-color", btnIdx);
+  };
+
+  // receive "color approved" message from server
+  socket.on("select-color", (btnIdx) => {
+    setSelectedColor(btnIdx);
+  });
+
   return (
     <div id="App" className="App">
       {!lobbyReady && (
@@ -123,6 +137,54 @@ function App() {
             <p>
               {readyInfo[0]}/{readyInfo[1]} players are ready
             </p>
+            <div className="flex-1">
+              <div className="mt-12">
+                <div className="colors">
+                  <button
+                    className={`btn btn-lg btn-outline btn-info ${
+                      selectedColor === 0 ? "btn-active" : ""
+                    }`}
+                    onClick={() => handleColorClick(0)}
+                  ></button>
+                  <button
+                    className={`btn btn-lg btn-outline btn-success ${
+                      selectedColor === 1 ? "btn-active" : ""
+                    }`}
+                    onClick={() => handleColorClick(1)}
+                  ></button>
+                  <button
+                    className={`btn btn-lg btn-outline btn-warning ${
+                      selectedColor === 2 ? "btn-active" : ""
+                    }`}
+                    onClick={() => handleColorClick(2)}
+                  ></button>
+                  <button
+                    className={`btn btn-lg btn-outline btn-error ${
+                      selectedColor === 3 ? "btn-active" : ""
+                    }`}
+                    onClick={() => handleColorClick(3)}
+                  ></button>
+                  <button
+                    className={`btn btn-lg btn-outline btn-primary ${
+                      selectedColor === 4 ? "btn-active" : ""
+                    }`}
+                    onClick={() => handleColorClick(4)}
+                  ></button>
+                  <button
+                    className={`btn btn-lg btn-outline btn-secondary ${
+                      selectedColor === 5 ? "btn-active" : ""
+                    }`}
+                    onClick={() => handleColorClick(5)}
+                  ></button>
+                  {selectedColor === -1 && (
+                    <div>Someone else is using this color!</div>
+                  )}
+                  {selectedColor === null && (
+                    <div>Select a color and ready up</div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -156,20 +218,7 @@ function App() {
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4">
-            <div className="flex-1"></div>
-            <h1 className="">{word} {isDrawer ? "drawer" : "spectator"}</h1>
-
-            <div className="flex-1">
-              <div className="mt-4 ml-24">
-                <div ref={colorsRef} className="colors">
-                  <div className="color black" />
-                  <div className="color red" />
-                  <div className="color green" />
-                  <div className="color blue" />
-                  <div className="color yellow" />
-                </div>
-              </div>
-            </div>
+            <h1 className="">{word}</h1>
           </div>
         </div>
       )}
