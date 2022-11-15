@@ -218,7 +218,7 @@ function App() {
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4">
-            <h1 className="">{word}</h1>
+            <h1 className="">{word} {isDrawer ? "drawer" : "spectator"}</h1>
           </div>
         </div>
       )}
