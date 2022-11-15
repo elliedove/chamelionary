@@ -8,7 +8,6 @@ const socket = io("http://localhost:3030");
 function App() {
   const [messages, setMessages] = useState([]);
   const [currMessage, setCurrMessage] = useState("");
-  const [isConnected, setIsConnected] = useState(socket.connected);
   const [lobbyReady, setLobbyReady] = useState(false);
   const [clientReady, setClientReady] = useState(false);
   const [readyInfo, setReadyInfo] = useState([0, 0]);
@@ -21,33 +20,29 @@ function App() {
 
   useEffect(() => {
     socket.on("connect", () => {
-      setMessages([...messages, `You connected! ID: ${socket.id}`]);
-      setIsConnected(true);
+      setMessages([`You connected! ID: ${socket.id}`]);
     });
-
-    socket.on("disconnect", () => {
-      setIsConnected(false);
-    });
-
     return () => {
       socket.off("connect");
       socket.off("disconnect");
     };
   }, []);
 
-  // re-render canvas
+  // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
       Canvas(socket, canvasRef, selectedColor);
     }
-  }, [lobbyReady]);
+  }, [lobbyReady, selectedColor]);
 
   // chatbox scroll to bottom effect
   useEffect(() => {
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
     scrollToBottom();
-  }, [messages]);
+  }, [messages, messagesEndRef]);
 
-  // received a message from socket
   socket.on("receive-message", (receivedMessage) => {
     setMessages([...messages, receivedMessage]);
   });
@@ -64,6 +59,11 @@ function App() {
 
   socket.on("drawer-check", (isDrawer) => {
     setDrawerInfo(isDrawer);
+  });
+
+  // receive "color approved" message from server
+  socket.on("select-color", (btnIdx) => {
+    setSelectedColor(btnIdx);
   });
 
   const handleMessageChange = (event) => {
@@ -105,10 +105,6 @@ function App() {
     setCurrMessage("");
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const readyButtonText = () => {
     if (clientReady) {
       return "waiting on others...";
@@ -117,14 +113,10 @@ function App() {
     }
   };
 
+  // request selected color
   const handleColorClick = (btnIdx) => {
     socket.emit("select-color", btnIdx);
   };
-
-  // receive "color approved" message from server
-  socket.on("select-color", (btnIdx) => {
-    setSelectedColor(btnIdx);
-  });
 
   return (
     <div id="App" className="App">
@@ -218,7 +210,9 @@ function App() {
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4">
-            <h1 className="">{word} {isDrawer ? "drawer" : "spectator"}</h1>
+            <h1 className="">
+              {word} {isDrawer ? "drawer" : "spectator"}
+            </h1>
           </div>
         </div>
       )}

@@ -5,11 +5,10 @@ const io = require("socket.io")(3030, {
 });
 
 const fs = require("fs");
-const { toUSVString } = require("util");
 
 const NUM_COLORS = 5;
 
-// associates socket IDs with names and colors
+// associates socket IDs with game info
 var gameInfo = {
   names: {},
   colors: {},
@@ -72,7 +71,6 @@ function playGame(numberReady) {
   var i = 0;
   // list of all socket ids that are ready
   var allKeys = Object.keys(gameInfo["ready"]);
-  // print player order
   console.log("player order: ", playerOrder);
 
   // loop over ready socket ids
@@ -214,10 +212,11 @@ io.on("connection", (socket) => {
     if (socket.id in gameInfo["colors"]) {
       delete gameInfo["colors"][socket.id];
     }
+
+    // resend ready data
     var totalConnected = Object.keys(gameInfo["ready"]).length;
     socket.broadcast.emit("lobby-not-ready", [numberReady, totalConnected]);
 
-    // must recheck if all are ready
     // this is in the case that the person who left was the only unready person
     if (numberReady === totalConnected && totalConnected > 1) {
       sendLobbyReady(numberReady);
