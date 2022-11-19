@@ -31,9 +31,9 @@ function App() {
   // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
-      Canvas(socket, canvasRef, selectedColor);
+      Canvas(socket, canvasRef, selectedColor, isDrawer);
     }
-  }, [lobbyReady, selectedColor]);
+  }, [lobbyReady, selectedColor, isDrawer]);
 
   // chatbox scroll to bottom effect
   useEffect(() => {

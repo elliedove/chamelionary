@@ -21,6 +21,7 @@ var gameStarted = false;
 var linesDrawn = [];
 var numberReady = 0;
 var currWord = "";
+var playerIndex = 0;
 
 function chooseWord(filename) {
   // read in words from file line-by-line
@@ -61,44 +62,44 @@ function sendLobbyReady(numberReady) {
     }
   }
   // start playing the game
-  playGame(numberReady);
+  //playGame(numberReady);
+  setInterval(playGame, 10000, numberReady);
+
 }
 
 function playGame(numberReady) {
   // boolean to hold whether game is over or not
   var gameOver = false;
-  // counter to loop over allKeys
-  var i = 0;
   // list of all socket ids that are ready
   var allKeys = Object.keys(gameInfo["ready"]);
   console.log("player order: ", playerOrder);
 
   // loop over ready socket ids
   //do{
-  // get current socket who will be drawer
-  currDrawer = playerOrder[i % numberReady];
-  // print the current drawer
-  console.log("current drawer is: ", currDrawer);
+    // get current socket who will be drawer
+    currDrawer = playerOrder[playerIndex % numberReady];
+    // print the current drawer
+    console.log("current drawer is: ", currDrawer);
 
-  // loop over sockets and say you're drawer or spectator
-  for (j = 0; j < numberReady; j++) {
-    // you're the drawer
-    if (allKeys[j] === currDrawer) {
-      console.log("drawer: ", allKeys[j]);
-      io.to(allKeys[j]).emit("drawer-check", 1);
+    // loop over sockets and say you're drawer or spectator
+    for (j = 0; j < numberReady; j++) {
+      // you're the drawer
+      if (allKeys[j] === currDrawer) {
+        console.log("drawer: ", allKeys[j]);
+        io.to(allKeys[j]).emit("drawer-check", 1);
+      }
+      // not the drawer
+      else {
+        console.log("spectator: ", allKeys[j]);
+        io.to(allKeys[j]).emit("drawer-check", 0);
+      }
     }
-    // not the drawer
-    else {
-      console.log("spectator: ", allKeys[j]);
-      io.to(allKeys[j]).emit("drawer-check", 0);
-    }
-  }
 
-  // TODO: implement conditions for when a turn starts and is over
-  //turn()
+    // TODO: implement conditions for when a turn starts and is over
+    //turn();
 
-  i = i + 1;
-  gameOver = checkGameOver();
+    playerIndex = playerIndex + 1;
+    gameOver = checkGameOver();
   //} while(!gameOver);
 }
 
