@@ -193,6 +193,8 @@ io.on("connection", (socket) => {
   // client sent disconnect
   socket.on("disconnect", () => {
     console.log(socket.id + " has disconnected");
+    // TODO: if it was this person's turn -> increment the turn
+
     // remove all related info
     if (socket.id in gameInfo["names"]) {
       delete gameInfo["names"][socket.id];

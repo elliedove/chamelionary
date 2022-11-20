@@ -27,13 +27,6 @@ function App() {
       setMessages([`You connected! ID: ${socket.id}`]);
     });
 
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-    };
-  }, []);
-
-  useEffect(() => {
     const endTurn = () => {
       socket.emit("turn-over");
       //   setStarted(false);
@@ -65,13 +58,24 @@ function App() {
     };
 
     socket.on("drawer-check", receivedDrawerCheck);
-  }, [socket]);
+
+    return () => {
+      socket.off("connect");
+      socket.off("drawer-check");
+      socket.off("disconnect");
+      socket.off("drawing");
+    };
+  }, []);
 
   // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
       Canvas(socket, canvasRef, selectedColor, drawerInfo);
     }
+
+    return () => {
+      socket.off("drawing");
+    };
   }, [lobbyReady, selectedColor, drawerInfo]);
 
   // chatbox scroll to bottom effect
