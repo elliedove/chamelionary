@@ -27,38 +27,6 @@ function App() {
       setMessages([`You connected! ID: ${socket.id}`]);
     });
 
-    const endTurn = () => {
-      socket.emit("turn-over");
-      //   setStarted(false);
-      setDrawerInfo(1);
-      clearInterval(intervalID);
-    };
-
-    const receivedDrawerCheck = (check) => {
-      console.log("fire receivedDrawerCheck");
-      if (check === 1) {
-        // allow drawing
-        setDrawerInfo(1);
-        // start timer
-        console.log("starting client timer");
-        let time = 5;
-        let timer = setInterval(function () {
-          time -= 1;
-          console.log(time);
-          if (time == 0) {
-            console.log("done");
-            // tell server we're done
-            socket.emit("turn-over");
-            // remove drawing permissions
-            setDrawerInfo(0);
-            clearInterval(timer);
-          }
-        }, 1000);
-      }
-    };
-
-    socket.on("drawer-check", receivedDrawerCheck);
-
     return () => {
       socket.off("connect");
       socket.off("drawer-check");
@@ -70,13 +38,13 @@ function App() {
   // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
-      Canvas(socket, canvasRef, selectedColor, drawerInfo);
+      Canvas(socket, canvasRef, selectedColor, drawerInfo, handleDrawerInfo);
     }
 
     return () => {
       socket.off("drawing");
     };
-  }, [lobbyReady, selectedColor, drawerInfo]);
+  }, [lobbyReady, selectedColor]);
 
   // chatbox scroll to bottom effect
   useEffect(() => {
@@ -102,9 +70,12 @@ function App() {
 
   // receive "color approved" message from server
   socket.on("select-color", (btnIdx) => {
-    console.log("select-color");
     setSelectedColor(btnIdx);
   });
+
+  const handleDrawerInfo = (data) => {
+    setDrawerInfo(data);
+  };
 
   const handleMessageChange = (event) => {
     setCurrMessage(event.target.value);
@@ -155,7 +126,6 @@ function App() {
 
   // request selected color
   const handleColorClick = (btnIdx) => {
-    console.log("send color info");
     socket.emit("select-color", btnIdx);
   };
 

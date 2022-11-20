@@ -1,4 +1,27 @@
-function Canvas(socket, canvasRef, selectedColorIdx, isDrawer) {
+function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo) {
+  const receivedDrawerCheck = (check) => {
+    if (check === 1) {
+      // allow drawing
+      isDrawer = 1;
+      handleDrawerInfo(1);
+      // start timer
+      let time = 5;
+      let timer = setInterval(function () {
+        time -= 1;
+        if (time == 0) {
+          // tell server we're done
+          socket.emit("turn-over");
+          // remove drawing permissions
+          isDrawer = 0;
+          handleDrawerInfo(0);
+          clearInterval(timer);
+        }
+      }, 1000);
+      return isDrawer;
+    }
+  };
+
+  socket.on("drawer-check", receivedDrawerCheck);
   const allColors = ["blue", "green", "yellow", "red", "purple", "magenta"];
 
   const canvas = canvasRef.current;

@@ -251,34 +251,11 @@ io.on("connection", (socket) => {
       console.log("incrementing turn, current player idx: " + currDrawer);
       io.to(currDrawer).emit("drawer-check", 1);
     }
-
-    // let everyone know of their turn status
-    // for (j = 0; j < numberReady; j++) {
-    //   // you're the drawer
-    //   if (allKeys[j] === currDrawer) {
-    //     console.log("drawer: ", allKeys[j]);
-    //     io.to(allKeys[j]).emit("drawer-check", 1);
-    //   }
-    //   // not the drawer
-    //   else {
-    //     console.log("spectator: ", allKeys[j]);
-    //     io.to(allKeys[j]).emit("drawer-check", 0);
-    //   }
-    // }
   });
 
   socket.on("drawing", (data) => {
     var color = gameInfo["colors"][socket.id];
     data.color = color;
-    linesDrawn.push(data);
-    // get this person's color
-    limiter++;
-    if (limiter % 3 == 0) {
-      for (let i = 0; i < linesDrawn.length; i++) {
-        // socket.broadcast.emit("drawing", data);
-        socket.broadcast.emit("drawing", linesDrawn[i]);
-      }
-      linesDrawn = [];
-    }
+    socket.broadcast.emit("drawing", data);
   });
 });
