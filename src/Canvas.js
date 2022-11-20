@@ -8,7 +8,7 @@ function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo)
       let time = 5;
       let timer = setInterval(function () {
         time -= 1;
-        if (time == 0) {
+        if (time === 0) {
           // tell server we're done
           socket.emit("turn-over");
           // remove drawing permissions

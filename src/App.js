@@ -18,9 +18,6 @@ function App() {
   const [word, setWord] = useState("");
   const [nameInput, setNameInput] = useState("");
   const [drawerInfo, setDrawerInfo] = useState(0);
-  const [countDown, setCountDown] = useState(TIMEOUT_AMT);
-  const [intervalID, setIntervalID] = useState(0);
-  const [started, setStarted] = useState(false);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();

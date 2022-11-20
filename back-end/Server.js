@@ -3,9 +3,7 @@ const io = require("socket.io")(3030, {
     origin: ["http://localhost:3000"],
   },
 });
-
 const fs = require("fs");
-
 const NUM_COLORS = 5;
 
 // associates socket IDs with game info
@@ -18,11 +16,9 @@ var gameInfo = {
 
 var playerOrder = [];
 var gameStarted = false;
-var linesDrawn = [];
 var numberReady = 0;
 var currWord = "";
 var playerIndex = 0;
-var limiter = 0;
 
 function chooseWord(filename) {
   // read in words from file line-by-line
@@ -81,20 +77,6 @@ function playGame(numberReady) {
   // print the current drawer
   console.log("current drawer is: ", currDrawer);
   io.to(currDrawer).emit("drawer-check", 1);
-
-  // loop over sockets and say you're drawer or spectator
-  //   for (j = 0; j < numberReady; j++) {
-  //     // you're the drawer
-  //     if (allKeys[j] === currDrawer) {
-  //       console.log("drawer: ", allKeys[j]);
-  //       io.to(allKeys[j]).emit("drawer-check", 1);
-  //     }
-  //     // not the drawer
-  //     else {
-  //       console.log("spectator: ", allKeys[j]);
-  //       io.to(allKeys[j]).emit("drawer-check", 0);
-  //     }
-  //   }
 
   // TODO: implement conditions for when a turn starts and is over
   //turn();
