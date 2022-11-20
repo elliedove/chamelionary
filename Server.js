@@ -137,12 +137,15 @@ io.on("connection", (socket) => {
   }
 
   // ready up received
-  socket.on("ready-up", () => {
+  socket.on("ready-up", (name) => {
     console.log(socket.id + " has readied up");
     // add their ready up to the list
     gameInfo["ready"][socket.id] = true;
     // add socket to player order
     playerOrder.push(socket.id);
+
+    // add name
+    gameInfo["names"][socket.id] = name;
 
     console.log("checking if everyone is ready...");
 
@@ -180,15 +183,12 @@ io.on("connection", (socket) => {
     if (message.startsWith("/name")) {
       var newName = message.slice(6);
 
-      // TODO: length validate and check for special characters
+      // TODO: validate for special characters
       gameInfo["names"][socket.id] = newName;
       socket.broadcast.emit("receive-message", newName + " has joined!");
     } else {
       if (gameInfo["names"][socket.id]) {
-        socket.broadcast.emit(
-          "receive-message",
-          gameInfo["names"][socket.id] + ": " + message
-        );
+        socket.broadcast.emit("receive-message", gameInfo["names"][socket.id] + ": " + message);
       } else {
         socket.broadcast.emit("receive-message", "Anon: " + message);
       }
@@ -233,10 +233,7 @@ io.on("connection", (socket) => {
     }
 
     // see if anyone else has picked this color + is valid
-    if (
-      Object.values(gameInfo["colors"]).includes(colorIndex) ||
-      colorIndex > NUM_COLORS
-    ) {
+    if (Object.values(gameInfo["colors"]).includes(colorIndex) || colorIndex > NUM_COLORS) {
       // send -1 if invalid color
       gameInfo["colors"][socket.id] = -1;
       io.to(socket.id).emit("select-color", -1);

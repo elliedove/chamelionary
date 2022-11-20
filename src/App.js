@@ -5,6 +5,8 @@ import Canvas from "./Canvas";
 
 const socket = io("http://localhost:3030");
 
+const USERNAME_LENGTH = 15;
+
 function App() {
   const [messages, setMessages] = useState([]);
   const [currMessage, setCurrMessage] = useState("");
@@ -14,6 +16,7 @@ function App() {
   const [selectedColor, setSelectedColor] = useState(null);
   const [word, setWord] = useState("");
   const [isDrawer, setDrawerInfo] = useState(false);
+  const [nameInput, setNameInput] = useState("");
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -89,8 +92,10 @@ function App() {
     // ready up
     if (!clientReady) {
       setClientReady(true);
+      // truncate name
+      var sentName = nameInput.slice(0, USERNAME_LENGTH);
       // tell server we are ready
-      socket.emit("ready-up");
+      socket.emit("ready-up", sentName);
     }
     // unready
     else {
@@ -118,6 +123,10 @@ function App() {
     socket.emit("select-color", btnIdx);
   };
 
+  const handleNameChange = (e) => {
+    setNameInput(e.target.value);
+  };
+
   return (
     <div id="App" className="App">
       {!lobbyReady && (
@@ -129,51 +138,44 @@ function App() {
             <p>
               {readyInfo[0]}/{readyInfo[1]} players are ready
             </p>
+            <div className="flex-1 w-full">
+              <input
+                type="text"
+                placeholder="Name"
+                className="mt-5 input input-md min-w-max input-bordered"
+                value={nameInput}
+                onChange={handleNameChange}
+              />
+            </div>
             <div className="flex-1">
-              <div className="mt-12">
+              <div className="mt-5">
                 <div className="colors">
                   <button
-                    className={`btn btn-lg btn-outline btn-info ${
-                      selectedColor === 0 ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-lg btn-outline btn-info ${selectedColor === 0 ? "btn-active" : ""}`}
                     onClick={() => handleColorClick(0)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-success ${
-                      selectedColor === 1 ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-lg btn-outline btn-success ${selectedColor === 1 ? "btn-active" : ""}`}
                     onClick={() => handleColorClick(1)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-warning ${
-                      selectedColor === 2 ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-lg btn-outline btn-warning ${selectedColor === 2 ? "btn-active" : ""}`}
                     onClick={() => handleColorClick(2)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-error ${
-                      selectedColor === 3 ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-lg btn-outline btn-error ${selectedColor === 3 ? "btn-active" : ""}`}
                     onClick={() => handleColorClick(3)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-primary ${
-                      selectedColor === 4 ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-lg btn-outline btn-primary ${selectedColor === 4 ? "btn-active" : ""}`}
                     onClick={() => handleColorClick(4)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-secondary ${
-                      selectedColor === 5 ? "btn-active" : ""
-                    }`}
+                    className={`btn btn-lg btn-outline btn-secondary ${selectedColor === 5 ? "btn-active" : ""}`}
                     onClick={() => handleColorClick(5)}
                   ></button>
-                  {selectedColor === -1 && (
-                    <div>Someone else is using this color!</div>
-                  )}
-                  {selectedColor === null && (
-                    <div>Select a color and ready up</div>
-                  )}
+                  {selectedColor === -1 && <div>Someone else is using this color!</div>}
+                  {selectedColor === null && <div>Select a color and ready up</div>}
                 </div>
               </div>
             </div>
