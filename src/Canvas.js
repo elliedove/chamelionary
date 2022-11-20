@@ -1,4 +1,27 @@
-function Canvas(socket, canvasRef, selectedColorIdx) {
+function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo) {
+  const receivedDrawerCheck = (check) => {
+    if (check === 1) {
+      // allow drawing
+      isDrawer = 1;
+      handleDrawerInfo(1);
+      // start timer
+      let time = 5;
+      let timer = setInterval(function () {
+        time -= 1;
+        if (time == 0) {
+          // tell server we're done
+          socket.emit("turn-over");
+          // remove drawing permissions
+          isDrawer = 0;
+          handleDrawerInfo(0);
+          clearInterval(timer);
+        }
+      }, 1000);
+      return isDrawer;
+    }
+  };
+
+  socket.on("drawer-check", receivedDrawerCheck);
   const allColors = ["blue", "green", "yellow", "red", "purple", "magenta"];
 
   const canvas = canvasRef.current;
@@ -18,7 +41,7 @@ function Canvas(socket, canvasRef, selectedColorIdx) {
 
   // ------------------------------- create the drawing ----------------------------
 
-  const drawLine = (x0, y0, x1, y1, color, emit) => {
+  const drawLine = (x0, y0, x1, y1, color, drawer) => {
     context.beginPath();
     context.moveTo(x0, y0);
     context.lineTo(x1, y1);
@@ -27,11 +50,12 @@ function Canvas(socket, canvasRef, selectedColorIdx) {
     context.stroke();
     context.closePath();
 
-    if (!emit) {
-      return;
-    }
     const w = canvas.width;
     const h = canvas.height;
+
+    if (!drawer) {
+      return;
+    }
 
     socket.emit("drawing", {
       x0: x0 / w,
@@ -43,9 +67,10 @@ function Canvas(socket, canvasRef, selectedColorIdx) {
   };
 
   // ---------------- mouse movement --------------------------------------
-
   const onMouseDown = (e) => {
-    drawing = true;
+    if (isDrawer) {
+      drawing = true;
+    }
     current.x = e.clientX || e.touches[0].clientX;
     current.y = e.clientY || e.touches[0].clientY;
   };
@@ -61,7 +86,7 @@ function Canvas(socket, canvasRef, selectedColorIdx) {
       e.clientY || e.touches[0].clientY,
       // TODO: this will have to be the variable representing the proper color
       current.color,
-      true
+      isDrawer
     );
     current.x = e.clientX || e.touches[0].clientX;
     current.y = e.clientY || e.touches[0].clientY;
@@ -78,7 +103,7 @@ function Canvas(socket, canvasRef, selectedColorIdx) {
       e.clientX || e.touches[0].clientX,
       e.clientY || e.touches[0].clientY,
       current.color,
-      true
+      isDrawer
     );
   };
 
@@ -123,13 +148,7 @@ function Canvas(socket, canvasRef, selectedColorIdx) {
   const onDrawingEvent = (data) => {
     const w = canvas.width;
     const h = canvas.height;
-    drawLine(
-      data.x0 * w,
-      data.y0 * h,
-      data.x1 * w,
-      data.y1 * h,
-      allColors[data.color]
-    );
+    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, allColors[data.color], isDrawer);
   };
 
   socket.on("drawing", onDrawingEvent);

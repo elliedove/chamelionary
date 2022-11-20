@@ -21,6 +21,8 @@ var gameStarted = false;
 var linesDrawn = [];
 var numberReady = 0;
 var currWord = "";
+var playerIndex = 0;
+var limiter = 0;
 
 function chooseWord(filename) {
   // read in words from file line-by-line
@@ -62,13 +64,12 @@ function sendLobbyReady(numberReady) {
   }
   // start playing the game
   playGame(numberReady);
+  //   setInterval(playGame, 10000, numberReady);
 }
 
 function playGame(numberReady) {
   // boolean to hold whether game is over or not
   var gameOver = false;
-  // counter to loop over allKeys
-  var i = 0;
   // list of all socket ids that are ready
   var allKeys = Object.keys(gameInfo["ready"]);
   console.log("player order: ", playerOrder);
@@ -76,34 +77,31 @@ function playGame(numberReady) {
   // loop over ready socket ids
   //do{
   // get current socket who will be drawer
-  currDrawer = playerOrder[i % numberReady];
+  currDrawer = playerOrder[playerIndex % numberReady];
   // print the current drawer
   console.log("current drawer is: ", currDrawer);
+  io.to(currDrawer).emit("drawer-check", 1);
 
   // loop over sockets and say you're drawer or spectator
-  for (j = 0; j < numberReady; j++) {
-    // you're the drawer
-    if (allKeys[j] === currDrawer) {
-      console.log("drawer: ", allKeys[j]);
-      io.to(allKeys[j]).emit("drawer-check", 1);
-    }
-    // not the drawer
-    else {
-      console.log("spectator: ", allKeys[j]);
-      io.to(allKeys[j]).emit("drawer-check", 0);
-    }
-  }
+  //   for (j = 0; j < numberReady; j++) {
+  //     // you're the drawer
+  //     if (allKeys[j] === currDrawer) {
+  //       console.log("drawer: ", allKeys[j]);
+  //       io.to(allKeys[j]).emit("drawer-check", 1);
+  //     }
+  //     // not the drawer
+  //     else {
+  //       console.log("spectator: ", allKeys[j]);
+  //       io.to(allKeys[j]).emit("drawer-check", 0);
+  //     }
+  //   }
 
   // TODO: implement conditions for when a turn starts and is over
-  //turn()
+  //turn();
 
-  i = i + 1;
+  //   playerIndex = playerIndex + 1;
   gameOver = checkGameOver();
   //} while(!gameOver);
-}
-
-function turn() {
-  console.log("a turn is happening...");
 }
 
 function checkGameOver() {
@@ -198,6 +196,8 @@ io.on("connection", (socket) => {
   // client sent disconnect
   socket.on("disconnect", () => {
     console.log(socket.id + " has disconnected");
+    // TODO: if it was this person's turn -> increment the turn
+
     // remove all related info
     if (socket.id in gameInfo["names"]) {
       delete gameInfo["names"][socket.id];
@@ -245,9 +245,18 @@ io.on("connection", (socket) => {
     }
   });
 
+  // client reported their turn as over
+  socket.on("turn-over", () => {
+    // make sure the client who sent turn-over is the one who's turn it is
+    if (playerOrder[playerIndex % numberReady] == socket.id) {
+      playerIndex += 1;
+      currDrawer = playerOrder[playerIndex % numberReady];
+      console.log("incrementing turn, current player idx: " + currDrawer);
+      io.to(currDrawer).emit("drawer-check", 1);
+    }
+  });
+
   socket.on("drawing", (data) => {
-    linesDrawn.push(data);
-    // get this person's color
     var color = gameInfo["colors"][socket.id];
     data.color = color;
     socket.broadcast.emit("drawing", data);

@@ -4,6 +4,7 @@ import "./App.css";
 import Canvas from "./Canvas";
 
 const socket = io("http://localhost:3030");
+const TIMEOUT_AMT = 15;
 
 const USERNAME_LENGTH = 15;
 
@@ -15,8 +16,11 @@ function App() {
   const [readyInfo, setReadyInfo] = useState([0, 0]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [word, setWord] = useState("");
-  const [isDrawer, setDrawerInfo] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  const [drawerInfo, setDrawerInfo] = useState(0);
+  const [countDown, setCountDown] = useState(TIMEOUT_AMT);
+  const [intervalID, setIntervalID] = useState(0);
+  const [started, setStarted] = useState(false);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -25,17 +29,24 @@ function App() {
     socket.on("connect", () => {
       setMessages([`You connected! ID: ${socket.id}`]);
     });
+
     return () => {
       socket.off("connect");
+      socket.off("drawer-check");
       socket.off("disconnect");
+      socket.off("drawing");
     };
   }, []);
 
   // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
-      Canvas(socket, canvasRef, selectedColor);
+      Canvas(socket, canvasRef, selectedColor, drawerInfo, handleDrawerInfo);
     }
+
+    return () => {
+      socket.off("drawing");
+    };
   }, [lobbyReady, selectedColor]);
 
   // chatbox scroll to bottom effect
@@ -60,14 +71,14 @@ function App() {
     setReadyInfo([data[0], data[1]]);
   });
 
-  socket.on("drawer-check", (isDrawer) => {
-    setDrawerInfo(isDrawer);
-  });
-
   // receive "color approved" message from server
   socket.on("select-color", (btnIdx) => {
     setSelectedColor(btnIdx);
   });
+
+  const handleDrawerInfo = (data) => {
+    setDrawerInfo(data);
+  };
 
   const handleMessageChange = (event) => {
     setCurrMessage(event.target.value);
@@ -213,7 +224,7 @@ function App() {
 
           <div className="flex flex-row items-center justify-center gap-4">
             <h1 className="">
-              {word} {isDrawer ? "drawer" : "spectator"}
+              {word} {drawerInfo ? "drawer" : "spectator"}
             </h1>
           </div>
         </div>
