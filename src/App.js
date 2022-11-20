@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import "./App.css";
 import Canvas from "./Canvas";
 
-const socket = io("https://secret-bastion-15463.herokuapp.com/");
+const socket = io("http://localhost:3030");
 
 const USERNAME_LENGTH = 15;
 

@@ -50,7 +50,7 @@ function sendLobbyReady(numberReady) {
 
   // choose a random word
   // TODO: this is slow, move it to server start-up
-  currWord = chooseWord("animals.txt");
+  currWord = chooseWord("back-end/animals.txt");
 
   // emit start game message
   for (i = 0; i < numberReady; i++) {
