@@ -88,7 +88,14 @@ function playGame(numberReady) {
 
 function checkGameOver() {
   // TODO: implement condition to determine if game is over
+  if (playerIndex == numberReady) { //if all players have drawn
+    return true;
+  }
   return false;
+}
+
+function vote() {
+
 }
 
 io.on("connection", (socket) => {
@@ -232,9 +239,13 @@ io.on("connection", (socket) => {
     // make sure the client who sent turn-over is the one who's turn it is
     if (playerOrder[playerIndex % numberReady] == socket.id) {
       playerIndex += 1;
-      currDrawer = playerOrder[playerIndex % numberReady];
-      console.log("incrementing turn, current player idx: " + currDrawer);
-      io.to(currDrawer).emit("drawer-check", 1);
+      if (!checkGameOver()) {
+        currDrawer = playerOrder[playerIndex % numberReady];
+        console.log("incrementing turn, current player idx: " + currDrawer);
+        io.to(currDrawer).emit("drawer-check", 1);
+      } else {
+        console.log("game loop finished");
+      }
     }
   });
 
