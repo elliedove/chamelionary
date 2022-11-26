@@ -5,7 +5,7 @@ function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo)
       isDrawer = 1;
       handleDrawerInfo(1);
       // start timer
-      let time = 5;
+      let time = 10;
       let timer = setInterval(function () {
         time -= 1;
         if (time === 0) {
