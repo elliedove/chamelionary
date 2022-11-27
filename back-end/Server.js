@@ -13,6 +13,7 @@ var gameInfo = {
   colors: {},
   ready: {},
   bluffer: {},
+  votes: {},
 };
 
 var playerOrder = [];
@@ -92,7 +93,7 @@ function turnOver() {
     io.to(currDrawer).emit("drawer-check", 1);
   } else {
     console.log("game loop finished");
-    io.sockets.emit("game-over", "");
+    io.sockets.emit("game-over", [gameInfo.names, playerOrder]);
   }
 }
 
@@ -254,6 +255,13 @@ io.on("connection", (socket) => {
     // make sure the client who sent turn-over is the one who's turn it is
     if (playerOrder[playerIndex % numberReady] == socket.id) {
       turnOver();
+    }
+  });
+
+  socket.on("vote-cast", (votedPlayer) => {   
+    if (socket.id != votedPlayer) {
+      gameInfo.votes[socket.id] = votedPlayer;
+      console.log("vote: " + gameInfo.names[votedPlayer]);
     }
   });
 

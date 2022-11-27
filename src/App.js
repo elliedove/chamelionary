@@ -20,6 +20,8 @@ function App() {
   const [drawingOver, setDrawingOver] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [sideBarColors, setSideBarColors] = useState([]);
+  const [playerIds, setPlayerIds] = useState([]);
+  const [playerInfo, setPlayerInfo] = useState({});
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -65,8 +67,10 @@ function App() {
   }, [messages, messagesEndRef]);
 
   // receive signal that everyone is done drawing
-  socket.on("game-over", () => {
+  socket.on("game-over", (data) => {
     setDrawingOver(true);
+    setPlayerInfo(data[0]);
+    setPlayerIds(data[1]);
   });
 
   socket.on("receive-message", (receivedMessage) => {
@@ -144,6 +148,10 @@ function App() {
     }
   };
 
+  const handleVoteClick = (playerId) => {
+    socket.emit("vote-cast", playerId);
+  };
+
   // request selected color
   const handleColorClick = (btnIdx) => {
     socket.emit("select-color", btnIdx);
@@ -151,21 +159,6 @@ function App() {
 
   const handleNameChange = (e) => {
     setNameInput(e.target.value);
-  };
-
-  const convertColor = (color) => {
-    switch (color) {
-      case "purple":
-        return "box-content rounded bg-primary ml-4 h-8 w-8";
-      
-      case "magenta":
-        return "box-content rounded bg-secondary ml-4 h-8 w-8";
-
-      case "blue":
-        return "box-content rounded bg-secondary ml-4 h-8 w-8";
-      default:
-        return "red";
-    }
   };
 
   return (
@@ -258,7 +251,22 @@ function App() {
 
           <div>
             <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
-              {drawingOver && <div>voting goes here</div>}
+              {drawingOver && (
+                <div>
+                  <h1 className="text-2xl">{"Time to vote!"}</h1>
+                  <h2 className="text-xl">{"Players:"}</h2>
+                  <div className="btn-group">
+                    {playerIds.map((player) => (
+                      <button
+                        className="btn-sm bg-blue-500 hover:bg-blue-700 text-white"
+                        onClick={() => handleVoteClick(player)}
+                      >
+                        {playerInfo[player]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {!drawingOver && sideBarColors.length && (
                 <div className="">
                   <div>
