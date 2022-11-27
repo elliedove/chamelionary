@@ -228,19 +228,15 @@ function App() {
             </div>
           </div>
 
-          <div className="flex flex-row items-center justify-center gap-4">
-            <h1 className="text-2xl">
-              {word} {drawerInfo ? "drawer" : "spectator"}
-            </h1>
-          </div>
+          <div className="text-2xl">{word === "" ? "you're bluffing!" : "draw: " + word}</div>
+          <div className="text-2xl">{drawerInfo ? "drawing" : "spectating"}</div>
           <div>{timeRemaining == 0 ? "waiting..." : timeRemaining}</div>
         </div>
       )}
 
       {drawingOver && (
         <div>
-          <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
-          </div>
+          <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg"></div>
         </div>
       )}
     </div>
