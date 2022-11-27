@@ -106,7 +106,6 @@ function App() {
       setClientReady(true);
       // truncate name
       var sentName = nameInput.slice(0, USERNAME_LENGTH);
-      // tell server we are ready
       socket.emit("ready-up", sentName);
     }
     // unready
