@@ -91,6 +91,7 @@ function turnOver() {
     io.to(currDrawer).emit("drawer-check", 1);
   } else {
     console.log("game loop finished");
+    io.emit("game-over", "");
   }
 }
 
@@ -239,15 +240,6 @@ io.on("connection", (socket) => {
   socket.on("turn-over", () => {
     // make sure the client who sent turn-over is the one who's turn it is
     if (playerOrder[playerIndex % numberReady] == socket.id) {
-      playerIndex += 1;
-      if (!checkGameOver()) {
-        currDrawer = playerOrder[playerIndex % numberReady];
-        console.log("incrementing turn, current player idx: " + currDrawer);
-        io.to(currDrawer).emit("drawer-check", 1);
-      } else {
-        console.log("game loop finished");
-        io.emit("game-over", "");
-      }
       turnOver();
     }
   });
