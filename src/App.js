@@ -4,7 +4,6 @@ import "./App.css";
 import Canvas from "./Canvas";
 
 const socket = io("http://localhost:3030");
-const TIMEOUT_AMT = 15;
 
 const USERNAME_LENGTH = 15;
 
@@ -18,6 +17,7 @@ function App() {
   const [word, setWord] = useState("");
   const [nameInput, setNameInput] = useState("");
   const [drawerInfo, setDrawerInfo] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -38,7 +38,7 @@ function App() {
   // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
-      Canvas(socket, canvasRef, selectedColor, drawerInfo, handleDrawerInfo);
+      Canvas(socket, canvasRef, selectedColor, drawerInfo, handleDrawerInfo, handleTimerState);
     }
 
     return () => {
@@ -75,6 +75,10 @@ function App() {
 
   const handleDrawerInfo = (data) => {
     setDrawerInfo(data);
+  };
+
+  const handleTimerState = (data) => {
+    setTimeRemaining(data);
   };
 
   const handleMessageChange = (event) => {
@@ -220,10 +224,11 @@ function App() {
           </div>
 
           <div className="flex flex-row items-center justify-center gap-4">
-            <h1 className="">
+            <h1 className="text-2xl">
               {word} {drawerInfo ? "drawer" : "spectator"}
             </h1>
           </div>
+          <div>{timeRemaining == 0 ? "waiting..." : timeRemaining}</div>
         </div>
       )}
     </div>

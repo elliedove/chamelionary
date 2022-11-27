@@ -1,11 +1,14 @@
-function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo) {
+const TURN_LENGTH_SEC = 15;
+
+function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo, handleTimerState) {
   const receivedDrawerCheck = (check) => {
     if (check === 1) {
       // allow drawing
       isDrawer = 1;
       handleDrawerInfo(1);
       // start timer
-      let time = 10;
+      let time = TURN_LENGTH_SEC;
+      handleTimerState(time);
       let timer = setInterval(function () {
         time -= 1;
         if (time === 0) {
@@ -16,6 +19,7 @@ function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo)
           handleDrawerInfo(0);
           clearInterval(timer);
         }
+        handleTimerState(time);
       }, 1000);
       return isDrawer;
     }

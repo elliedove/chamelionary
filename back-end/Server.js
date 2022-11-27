@@ -88,15 +88,14 @@ function playGame(numberReady) {
 
 function checkGameOver() {
   // TODO: implement condition to determine if game is over
-  if (playerIndex == numberReady) { //if all players have drawn
+  if (playerIndex == numberReady) {
+    //if all players have drawn
     return true;
   }
   return false;
 }
 
-function vote() {
-
-}
+function vote() {}
 
 io.on("connection", (socket) => {
   console.log(socket.id);
