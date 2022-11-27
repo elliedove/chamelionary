@@ -19,6 +19,8 @@ function App() {
   const [drawerInfo, setDrawerInfo] = useState(0);
   const [drawingOver, setDrawingOver] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [playerIds, setPlayerIds] = useState([]);
+  const [playerInfo, setPlayerInfo] = useState({});
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -56,8 +58,10 @@ function App() {
   }, [messages, messagesEndRef]);
 
   // receive signal that everyone is done drawing
-  socket.on("game-over", () => {
+  socket.on("game-over", (data) => {
     setDrawingOver(true);
+    setPlayerInfo(data[0]);
+    setPlayerIds(data[1]);
   });
 
   socket.on("receive-message", (receivedMessage) => {
@@ -143,6 +147,10 @@ function App() {
   const handleNameChange = (e) => {
     setNameInput(e.target.value);
   };
+
+  const handleVoteClick = (playerId) => {
+    socket.emit("vote-cast", playerId);
+  }
 
   return (
     <div id="App" className="App">
@@ -240,6 +248,22 @@ function App() {
       {drawingOver && (
         <div>
           <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
+            <h1 className = "text-2xl">
+              {"Time to vote!"}
+            </h1>
+            <h2 className="text-xl">
+              {"Players:"}
+            </h2>
+            <div className="btn-group">
+              {playerIds.map((player) => (
+                <button 
+                  className="btn-sm bg-blue-500 hover:bg-blue-700 text-white"
+                  onClick={() => handleVoteClick(player)}
+                >
+                  {playerInfo[player]}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
