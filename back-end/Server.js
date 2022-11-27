@@ -245,10 +245,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("vote-cast", (votedPlayer) => {
-    console.log("vote: " + gameInfo.names[votedPlayer]);
+  socket.on("vote-cast", (votedPlayer) => {   
     if (socket.id != votedPlayer) {
       gameInfo.votes[socket.id] = votedPlayer;
+      console.log("vote: " + gameInfo.names[votedPlayer]);
     }
   });
 
