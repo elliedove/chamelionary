@@ -18,6 +18,7 @@ function App() {
   const [word, setWord] = useState("");
   const [nameInput, setNameInput] = useState("");
   const [drawerInfo, setDrawerInfo] = useState(0);
+  const [drawingOver, setDrawingOver] = useState(false);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -53,6 +54,11 @@ function App() {
     };
     scrollToBottom();
   }, [messages, messagesEndRef]);
+
+  // receive signal that everyone is done drawing
+  socket.on("game-over", () => {
+    setDrawingOver(true);
+  });
 
   socket.on("receive-message", (receivedMessage) => {
     setMessages([...messages, receivedMessage]);
@@ -223,6 +229,13 @@ function App() {
             <h1 className="">
               {word} {drawerInfo ? "drawer" : "spectator"}
             </h1>
+          </div>
+        </div>
+      )}
+
+      {drawingOver && (
+        <div>
+          <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
           </div>
         </div>
       )}
