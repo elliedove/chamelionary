@@ -19,6 +19,7 @@ function App() {
   const [drawerInfo, setDrawerInfo] = useState(0);
   const [drawingOver, setDrawingOver] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [sideBarColors, setSideBarColors] = useState([]);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -28,11 +29,19 @@ function App() {
       setMessages([`You connected! ID: ${socket.id}`]);
     });
 
+    // receive names and colors
+    socket.on("names-colors", (data) => {
+      console.log([...data]);
+      // console.log(data[0]);
+      setSideBarColors([...data]);
+      // console.log(sideBarColors);
+    });
+
     return () => {
       socket.off("connect");
       socket.off("drawer-check");
       socket.off("disconnect");
-      socket.off("drawing");
+      socket.off("names-colors");
     };
   }, []);
 
@@ -144,6 +153,21 @@ function App() {
     setNameInput(e.target.value);
   };
 
+  const convertColor = (color) => {
+    switch (color) {
+      case "purple":
+        return "box-content rounded bg-primary ml-4 h-8 w-8";
+      
+      case "magenta":
+        return "box-content rounded bg-secondary ml-4 h-8 w-8";
+
+      case "blue":
+        return "box-content rounded bg-secondary ml-4 h-8 w-8";
+      default:
+        return "red";
+    }
+  };
+
   return (
     <div id="App" className="App">
       {!lobbyReady && (
@@ -231,12 +255,26 @@ function App() {
           <div className="text-2xl">{word === "" ? "you're bluffing!" : "draw: " + word}</div>
           <div className="text-2xl">{drawerInfo ? "drawing" : "spectating"}</div>
           <div>{timeRemaining == 0 ? "waiting..." : timeRemaining}</div>
-        </div>
-      )}
 
-      {drawingOver && (
-        <div>
-          <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg"></div>
+          <div>
+            <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
+              {drawingOver && <div>voting goes here</div>}
+              {!drawingOver && sideBarColors.length && (
+                <div className="">
+                  <div>
+                    {sideBarColors.map((pair) => {
+                      return (
+                        <div className="flex items-center justify-center mt-2">
+                          <div>{pair[0]}</div>
+                          <div className={`box-content rounded btn-${pair[1]} ml-4 h-8 w-8`}></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

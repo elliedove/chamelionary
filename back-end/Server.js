@@ -4,7 +4,8 @@ const io = require("socket.io")(3030, {
   },
 });
 const fs = require("fs");
-const NUM_COLORS = 5;
+const NUM_COLORS = 6;
+const allColors = ["info", "success", "warning", "error", "primary", "secondary"];
 
 // associates socket IDs with game info
 var gameInfo = {
@@ -117,7 +118,7 @@ io.on("connection", (socket) => {
     // skip lobby, give current word
     io.to(socket.id).emit("lobby-ready", [currWord]);
     // give them the first available color
-    for (var i = 0; i <= NUM_COLORS; i++) {
+    for (var i = 0; i < NUM_COLORS; i++) {
       if (!Object.values(gameInfo["colors"]).includes(i)) {
         gameInfo["colors"][socket.id] = i;
         break;
@@ -144,6 +145,18 @@ io.on("connection", (socket) => {
       console.log("everyone is ready, starting game, sending message...");
 
       sendLobbyReady(numberReady);
+
+      // send names and colors
+      colors = [];
+      for (var key in gameInfo["names"]) {
+        if (gameInfo["names"][key] === "") {
+          colors.push(["Anon", allColors[gameInfo["colors"][key]]]);
+        } else {
+          colors.push([gameInfo["names"][key], allColors[gameInfo["colors"][key]]]);
+        }
+      }
+      console.log(colors);
+      io.sockets.emit("names-colors", colors);
 
       gameStarted = true;
     } else {
