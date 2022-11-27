@@ -91,6 +91,7 @@ function turnOver() {
     io.to(currDrawer).emit("drawer-check", 1);
   } else {
     console.log("game loop finished");
+    io.emit("game-over", "");
   }
 }
 
