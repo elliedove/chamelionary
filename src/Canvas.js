@@ -1,6 +1,13 @@
 const TURN_LENGTH_SEC = 15;
 
-function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo, handleTimerState) {
+function Canvas(
+  socket,
+  canvasRef,
+  selectedColorIdx,
+  isDrawer,
+  handleDrawerInfo,
+  handleTimerState
+) {
   const receivedDrawerCheck = (check) => {
     if (check === 1) {
       // allow drawing
@@ -111,20 +118,6 @@ function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo,
     );
   };
 
-  // ----------- limit the number of events per second -----------------------
-
-  const throttle = (callback, delay) => {
-    let previousCall = new Date().getTime();
-    return function () {
-      const time = new Date().getTime();
-
-      if (time - previousCall >= delay) {
-        previousCall = time;
-        callback.apply(null, arguments);
-      }
-    };
-  };
-
   // -----------------add event listeners to our canvas ----------------------
 
   canvas.addEventListener("mousedown", onMouseDown, false);
@@ -152,7 +145,14 @@ function Canvas(socket, canvasRef, selectedColorIdx, isDrawer, handleDrawerInfo,
   const onDrawingEvent = (data) => {
     const w = canvas.width;
     const h = canvas.height;
-    drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, allColors[data.color], isDrawer);
+    drawLine(
+      data.x0 * w,
+      data.y0 * h,
+      data.x1 * w,
+      data.y1 * h,
+      allColors[data.color],
+      isDrawer
+    );
   };
 
   socket.on("drawing", onDrawingEvent);

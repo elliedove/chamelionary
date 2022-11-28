@@ -50,7 +50,14 @@ function App() {
   // re-render canvas when lobby fully readies up
   useEffect(() => {
     if (lobbyReady) {
-      Canvas(socket, canvasRef, selectedColor, drawerInfo, handleDrawerInfo, handleTimerState);
+      Canvas(
+        socket,
+        canvasRef,
+        selectedColor,
+        drawerInfo,
+        handleDrawerInfo,
+        handleTimerState
+      );
     }
 
     return () => {
@@ -185,31 +192,47 @@ function App() {
               <div className="mt-5">
                 <div className="colors">
                   <button
-                    className={`btn btn-lg btn-outline btn-info ${selectedColor === 0 ? "btn-active" : ""}`}
+                    className={`btn btn-lg btn-outline btn-info ${
+                      selectedColor === 0 ? "btn-active" : ""
+                    }`}
                     onClick={() => handleColorClick(0)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-success ${selectedColor === 1 ? "btn-active" : ""}`}
+                    className={`btn btn-lg btn-outline btn-success ${
+                      selectedColor === 1 ? "btn-active" : ""
+                    }`}
                     onClick={() => handleColorClick(1)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-warning ${selectedColor === 2 ? "btn-active" : ""}`}
+                    className={`btn btn-lg btn-outline btn-warning ${
+                      selectedColor === 2 ? "btn-active" : ""
+                    }`}
                     onClick={() => handleColorClick(2)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-error ${selectedColor === 3 ? "btn-active" : ""}`}
+                    className={`btn btn-lg btn-outline btn-error ${
+                      selectedColor === 3 ? "btn-active" : ""
+                    }`}
                     onClick={() => handleColorClick(3)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-primary ${selectedColor === 4 ? "btn-active" : ""}`}
+                    className={`btn btn-lg btn-outline btn-primary ${
+                      selectedColor === 4 ? "btn-active" : ""
+                    }`}
                     onClick={() => handleColorClick(4)}
                   ></button>
                   <button
-                    className={`btn btn-lg btn-outline btn-secondary ${selectedColor === 5 ? "btn-active" : ""}`}
+                    className={`btn btn-lg btn-outline btn-secondary ${
+                      selectedColor === 5 ? "btn-active" : ""
+                    }`}
                     onClick={() => handleColorClick(5)}
                   ></button>
-                  {selectedColor === -1 && <div>Someone else is using this color!</div>}
-                  {selectedColor === null && <div>Select a color and ready up</div>}
+                  {selectedColor === -1 && (
+                    <div>Someone else is using this color!</div>
+                  )}
+                  {selectedColor === null && (
+                    <div>Select a color and ready up</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -245,12 +268,16 @@ function App() {
             </div>
           </div>
 
-          <div className="text-2xl">{word === "" ? "you're bluffing!" : "draw: " + word}</div>
-          <div className="text-2xl">{drawerInfo ? "drawing" : "spectating"}</div>
-          <div>{timeRemaining == 0 ? "waiting..." : timeRemaining}</div>
+          <div className="text-2xl">
+            {word === "" ? "you're bluffing!" : "draw: " + word}
+          </div>
+          <div className="text-2xl">
+            {drawerInfo ? "drawing" : "spectating"}
+          </div>
+          <div>{timeRemaining === 0 ? "waiting..." : timeRemaining}</div>
 
           <div>
-            <div className="bg-gray-200 absolute inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
+            <div className="bg-gray-200 absolute max-h-96 inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
               {drawingOver && (
                 <div>
                   <h1 className="text-2xl">{"Time to vote!"}</h1>
@@ -274,7 +301,9 @@ function App() {
                       return (
                         <div className="flex items-center justify-center mt-2">
                           <div>{pair[0]}</div>
-                          <div className={`box-content rounded btn-${pair[1]} ml-4 h-8 w-8`}></div>
+                          <div
+                            className={`box-content rounded btn-${pair[1]} ml-4 h-8 w-8`}
+                          ></div>
                         </div>
                       );
                     })}

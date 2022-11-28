@@ -4,8 +4,17 @@ const io = require("socket.io")(3030, {
   },
 });
 const fs = require("fs");
+const randomWords = require("random-words");
+
 const NUM_COLORS = 6;
-const allColors = ["info", "success", "warning", "error", "primary", "secondary"];
+const allColors = [
+  "info",
+  "success",
+  "warning",
+  "error",
+  "primary",
+  "secondary",
+];
 
 // associates socket IDs with game info
 var gameInfo = {
@@ -85,6 +94,17 @@ function checkGameOver() {
   return false;
 }
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function generateRandomName() {
+  var first = capitalizeFirstLetter(randomWords());
+  var second = capitalizeFirstLetter(randomWords());
+
+  return first + second;
+}
+
 function turnOver() {
   playerIndex += 1;
   if (!checkGameOver()) {
@@ -125,7 +145,23 @@ io.on("connection", (socket) => {
         break;
       }
     }
+    // TODO: set name and send new names to everyone
+    gameInfo["names"][socket.id] = generateRandomName();
+
+    colors = [];
+    for (var key in gameInfo["names"]) {
+      if (gameInfo["names"][key] === "") {
+        colors.push(["Anon", allColors[gameInfo["colors"][key]]]);
+      } else {
+        colors.push([
+          gameInfo["names"][key],
+          allColors[gameInfo["colors"][key]],
+        ]);
+      }
+    }
+    console.log(colors);
     io.to(socket.id).emit("select-color", gameInfo["colors"][socket.id]);
+    io.sockets.emit("names-colors", colors);
   }
 
   // ready up received
@@ -133,7 +169,12 @@ io.on("connection", (socket) => {
     console.log(socket.id + " has readied up");
     gameInfo["ready"][socket.id] = true;
     playerOrder.push(socket.id);
-    gameInfo["names"][socket.id] = name;
+
+    if (name === "") {
+      gameInfo["names"][socket.id] = generateRandomName();
+    } else {
+      gameInfo["names"][socket.id] = name;
+    }
 
     console.log("checking if everyone is ready...");
 
@@ -151,9 +192,13 @@ io.on("connection", (socket) => {
       colors = [];
       for (var key in gameInfo["names"]) {
         if (gameInfo["names"][key] === "") {
-          colors.push(["Anon", allColors[gameInfo["colors"][key]]]);
+          // let newName = generateRandomName();
+          // colors.push(["Anon", allColors[gameInfo["colors"][key]]]);
         } else {
-          colors.push([gameInfo["names"][key], allColors[gameInfo["colors"][key]]]);
+          colors.push([
+            gameInfo["names"][key],
+            allColors[gameInfo["colors"][key]],
+          ]);
         }
       }
       console.log(colors);
@@ -188,7 +233,10 @@ io.on("connection", (socket) => {
       socket.broadcast.emit("receive-message", newName + " has joined!");
     } else {
       if (gameInfo["names"][socket.id]) {
-        socket.broadcast.emit("receive-message", gameInfo["names"][socket.id] + ": " + message);
+        socket.broadcast.emit(
+          "receive-message",
+          gameInfo["names"][socket.id] + ": " + message
+        );
       } else {
         socket.broadcast.emit("receive-message", "Anon: " + message);
       }
@@ -238,7 +286,10 @@ io.on("connection", (socket) => {
     }
 
     // see if anyone else has picked this color + is valid
-    if (Object.values(gameInfo["colors"]).includes(colorIndex) || colorIndex > NUM_COLORS) {
+    if (
+      Object.values(gameInfo["colors"]).includes(colorIndex) ||
+      colorIndex > NUM_COLORS
+    ) {
       // send -1 if invalid color
       gameInfo["colors"][socket.id] = -1;
       io.to(socket.id).emit("select-color", -1);
@@ -258,7 +309,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("vote-cast", (votedPlayer) => {   
+  socket.on("vote-cast", (votedPlayer) => {
     if (socket.id != votedPlayer) {
       gameInfo.votes[socket.id] = votedPlayer;
       console.log("vote: " + gameInfo.names[votedPlayer]);
