@@ -186,6 +186,7 @@ function App() {
                 className="mt-5 input input-md min-w-max input-bordered"
                 value={nameInput}
                 onChange={handleNameChange}
+                disabled={clientReady}
               />
             </div>
             <div className="flex-1">
