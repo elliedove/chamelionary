@@ -1,10 +1,11 @@
-const TURN_LENGTH_SEC = 15;
+const TURN_LENGTH_SEC = 5;
 
 function Canvas(
   socket,
   canvasRef,
   selectedColorIdx,
   isDrawer,
+  drawingOver,
   handleDrawerInfo,
   handleTimerState
 ) {

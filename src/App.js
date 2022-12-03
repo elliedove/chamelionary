@@ -55,6 +55,7 @@ function App() {
         canvasRef,
         selectedColor,
         drawerInfo,
+        drawingOver,
         handleDrawerInfo,
         handleTimerState
       );
@@ -78,6 +79,11 @@ function App() {
     setDrawingOver(true);
     setPlayerInfo(data[0]);
     setPlayerIds(data[1]);
+  });
+
+  // new turn is starting, need to get rid of voting HTML stuff
+  socket.on("reset-drawingOver", () => {
+    setDrawingOver(false);
   });
 
   socket.on("receive-message", (receivedMessage) => {

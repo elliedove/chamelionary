@@ -23,6 +23,7 @@ var gameInfo = {
   ready: {},
   bluffer: {},
   votes: {},
+  num_votes: {},
 };
 
 var playerOrder = [];
@@ -30,6 +31,7 @@ var gameStarted = false;
 var numberReady = 0;
 var currWord = "";
 var playerIndex = 0;
+var bluffer = "";
 
 function chooseWord(filename) {
   // read in words from file line-by-line
@@ -56,6 +58,7 @@ function sendLobbyReady(numberReady) {
   var bluffer_id = allKeys[index];
   gameInfo["bluffer"][bluffer_id] = true;
   console.log("picked bluffer: " + bluffer_id);
+  bluffer = bluffer_id;
 
   // choose a random word
   // TODO: this is slow, move it to server start-up
@@ -87,7 +90,9 @@ function playGame(numberReady) {
 }
 
 function checkGameOver() {
-  if (playerIndex == numberReady) {
+  // playerIndex would need to be a multiple of numberReady for voting to start
+  // not playerIndex being equal to numberReady
+  if (playerIndex % numberReady == 0) {
     //if all players have drawn
     return true;
   }
@@ -117,7 +122,25 @@ function turnOver() {
   }
 }
 
-function vote() {}
+function tally_votes() {
+  console.log("tally_votes called...");
+  // var to hold results of whether bluffer lost or not
+  var game_over_after_voting = false;
+  // get player with highest number of votes in gameInfo.num_votes
+  var received_highest_votes = Object.entries(gameInfo.num_votes).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  // print the curr person with the most votes
+  console.log("player who received the most votes is: " + received_highest_votes);
+  // was the most voted for player the bluffer?
+  console.log(received_highest_votes === bluffer ? game_over_after_voting = true : game_over_after_voting = false);
+  if (game_over_after_voting){
+    console.log("person is bluffer");
+    return false;
+  }else{
+    console.log("person is NOT bluffer");
+    return true;
+  }
+
+}
 
 io.on("connection", (socket) => {
   console.log(socket.id);
@@ -303,6 +326,7 @@ io.on("connection", (socket) => {
 
   // client reported their turn as over
   socket.on("turn-over", () => {
+    gameInfo.num_votes[socket.id] = 0;
     // make sure the client who sent turn-over is the one who's turn it is
     if (playerOrder[playerIndex % numberReady] == socket.id) {
       turnOver();
@@ -312,7 +336,28 @@ io.on("connection", (socket) => {
   socket.on("vote-cast", (votedPlayer) => {
     if (socket.id != votedPlayer) {
       gameInfo.votes[socket.id] = votedPlayer;
+      gameInfo.num_votes[votedPlayer] += 1;
       console.log("vote: " + gameInfo.names[votedPlayer]);
+      // prints each player's vote
+      console.log(gameInfo.votes);
+      // prints each player's vote count
+      console.log(gameInfo.num_votes);
+      if (Object.keys(gameInfo.votes).length == numberReady){
+        // count all the votes
+        console.log("everyone has voted!");
+        var continue_game = tally_votes();
+        if (continue_game){
+          // call function to continue game loop
+          console.log("calling function to continue game loop...");
+          io.emit("reset-drawingOver");
+          // clear values in gameInfo.votes
+          gameInfo.votes = {};
+          playGame(numberReady);
+        }else{
+          // call function to end loop
+          console.log("calling function to end game");
+        }
+      }
     }
   });
 
