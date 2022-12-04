@@ -24,6 +24,7 @@ function App() {
   const [playerInfo, setPlayerInfo] = useState({});
   const [votingDone, setVotingDone] = useState(false);
   const [votes, setVotes] = useState({});
+  const [gameFinished, setGameFinished] = useState(false);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -113,6 +114,10 @@ function App() {
     setVotes(voteDict);
   });
 
+  socket.on("bluffer-found", () => {
+    setGameFinished(true);
+  })
+
   const handleDrawerInfo = (data) => {
     setDrawerInfo(data);
   };
@@ -180,6 +185,10 @@ function App() {
 
   const handleNameChange = (e) => {
     setNameInput(e.target.value);
+  };
+
+  const handleContinueClick = () => {
+    socket.emit("next-round");
   };
 
   return (
@@ -255,7 +264,7 @@ function App() {
         </div>
       )}
 
-      {lobbyReady && (
+      {lobbyReady && !gameFinished && (
         <div>
           <canvas ref={canvasRef} className="whiteboard" />
           <div className="bg-gray-200 absolute inset-y-24 right-10 w-1/4 max-w-sm rounded shadow-lg overflow-scroll">
@@ -320,6 +329,12 @@ function App() {
                       </li>
                     ))}
                   </ul>
+                  <button 
+                  className="btn-md bg-blue-500 hover:bg-blue-700 text-white"
+                  onClick={() => handleContinueClick()}
+                  >
+                    {"Continue"}
+                  </button>
                 </div>
 
               )}
@@ -343,6 +358,10 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {gameFinished && (
+        <div className="text-2xl"> {"Game Over!"} </div>
       )}
     </div>
   );

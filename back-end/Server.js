@@ -32,6 +32,7 @@ var numberReady = 0;
 var currWord = "";
 var playerIndex = 0;
 var bluffer = "";
+var continue_game = true;
 
 function chooseWord(filename) {
   // read in words from file line-by-line
@@ -347,19 +348,24 @@ io.on("connection", (socket) => {
       if (Object.keys(gameInfo.votes).length == numberReady){
         // count all the votes
         console.log("everyone has voted!");
-        var continue_game = tally_votes();
-        // if (continue_game){
-        //   // call function to continue game loop
-        //   console.log("calling function to continue game loop...");
-        //   io.emit("reset-drawingOver");
-        //   // clear values in gameInfo.votes
-        //   gameInfo.votes = {};
-        //   playGame(numberReady);
-        // }else{
-        //   // call function to end loop
-        //   console.log("calling function to end game");
-        // }
+        continue_game = tally_votes();
+        
       }
+    }
+  });
+
+  socket.on("next-round", () => {
+    if (continue_game){
+      // call function to continue game loop
+      console.log("calling function to continue game loop...");
+      io.emit("reset-drawingOver");
+      // clear values in gameInfo.votes
+      gameInfo.votes = {};
+      playGame(numberReady);
+    }else{
+      // call function to end loop
+      console.log("calling function to end game");
+      io.emit("bluffer-found")
     }
   });
 
