@@ -22,6 +22,8 @@ function App() {
   const [sideBarColors, setSideBarColors] = useState([]);
   const [playerIds, setPlayerIds] = useState([]);
   const [playerInfo, setPlayerInfo] = useState({});
+  const [votingDone, setVotingDone] = useState(false);
+  const [votes, setVotes] = useState({});
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -84,6 +86,7 @@ function App() {
   // new turn is starting, need to get rid of voting HTML stuff
   socket.on("reset-drawingOver", () => {
     setDrawingOver(false);
+    setVotingDone(false);
   });
 
   socket.on("receive-message", (receivedMessage) => {
@@ -103,6 +106,11 @@ function App() {
   // receive "color approved" message from server
   socket.on("select-color", (btnIdx) => {
     setSelectedColor(btnIdx);
+  });
+
+  socket.on("voting-complete", (voteDict) => {
+    setVotingDone(true);
+    setVotes(voteDict);
   });
 
   const handleDrawerInfo = (data) => {
@@ -285,7 +293,7 @@ function App() {
 
           <div>
             <div className="bg-gray-200 absolute max-h-96 inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
-              {drawingOver && (
+              {drawingOver && !votingDone &&(
                 <div>
                   <h1 className="text-2xl">{"Time to vote!"}</h1>
                   <h2 className="text-xl">{"Players:"}</h2>
@@ -301,6 +309,21 @@ function App() {
                   </div>
                 </div>
               )}
+
+              {votingDone && (
+                <div>
+                  <h1 className="text-2xl">{"Results:"}</h1>
+                  <ul>
+                    {playerIds.map((player) => (
+                      <li>
+                        {playerInfo[player] + ": " + votes[player]}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+              )}
+
               {!drawingOver && sideBarColors.length && (
                 <div className="">
                   <div>

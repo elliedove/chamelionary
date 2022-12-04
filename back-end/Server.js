@@ -132,6 +132,8 @@ function tally_votes() {
   console.log("player who received the most votes is: " + received_highest_votes);
   // was the most voted for player the bluffer?
   console.log(received_highest_votes === bluffer ? game_over_after_voting = true : game_over_after_voting = false);
+
+  io.emit("voting-complete", gameInfo.num_votes);
   if (game_over_after_voting){
     console.log("person is bluffer");
     return false;
@@ -346,17 +348,17 @@ io.on("connection", (socket) => {
         // count all the votes
         console.log("everyone has voted!");
         var continue_game = tally_votes();
-        if (continue_game){
-          // call function to continue game loop
-          console.log("calling function to continue game loop...");
-          io.emit("reset-drawingOver");
-          // clear values in gameInfo.votes
-          gameInfo.votes = {};
-          playGame(numberReady);
-        }else{
-          // call function to end loop
-          console.log("calling function to end game");
-        }
+        // if (continue_game){
+        //   // call function to continue game loop
+        //   console.log("calling function to continue game loop...");
+        //   io.emit("reset-drawingOver");
+        //   // clear values in gameInfo.votes
+        //   gameInfo.votes = {};
+        //   playGame(numberReady);
+        // }else{
+        //   // call function to end loop
+        //   console.log("calling function to end game");
+        // }
       }
     }
   });
