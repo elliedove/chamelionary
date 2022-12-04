@@ -33,6 +33,7 @@ var currWord = "";
 var playerIndex = 0;
 var bluffer = "";
 var continue_game = true;
+var num_rounds = 0;
 
 function chooseWord(filename) {
   // read in words from file line-by-line
@@ -92,7 +93,6 @@ function playGame(numberReady) {
 
 function checkGameOver() {
   // playerIndex would need to be a multiple of numberReady for voting to start
-  // not playerIndex being equal to numberReady
   if (playerIndex % numberReady == 0) {
     //if all players have drawn
     return true;
@@ -118,6 +118,7 @@ function turnOver() {
     console.log("incrementing turn, current player idx: " + currDrawer);
     io.to(currDrawer).emit("drawer-check", 1);
   } else {
+    num_rounds += 1;
     console.log("game loop finished");
     io.sockets.emit("game-over", [gameInfo.names, playerOrder]);
   }
@@ -349,23 +350,27 @@ io.on("connection", (socket) => {
         // count all the votes
         console.log("everyone has voted!");
         continue_game = tally_votes();
-        
       }
     }
   });
 
   socket.on("next-round", () => {
     if (continue_game){
-      // call function to continue game loop
-      console.log("calling function to continue game loop...");
-      io.emit("reset-drawingOver");
-      // clear values in gameInfo.votes
-      gameInfo.votes = {};
-      playGame(numberReady);
+      if (num_rounds == 2) { //2 rounds finished, bluffer was not found
+        io.emit("game-finished", false);
+        continue_game = false;
+      }else{
+        // call function to continue game loop
+        console.log("calling function to continue game loop...");
+        io.emit("reset-drawingOver");
+        // clear values in gameInfo.votes
+        gameInfo.votes = {};
+        playGame(numberReady);
+      }   
     }else{
       // call function to end loop
       console.log("calling function to end game");
-      io.emit("bluffer-found")
+      io.emit("game-finished", true);
     }
   });
 

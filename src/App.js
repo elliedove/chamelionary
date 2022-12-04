@@ -25,6 +25,7 @@ function App() {
   const [votingDone, setVotingDone] = useState(false);
   const [votes, setVotes] = useState({});
   const [gameFinished, setGameFinished] = useState(false);
+  const [blufWin, setBlufWin] = useState(false);
 
   const canvasRef = useRef(null);
   const messagesEndRef = createRef();
@@ -114,8 +115,9 @@ function App() {
     setVotes(voteDict);
   });
 
-  socket.on("bluffer-found", () => {
+  socket.on("game-finished", (blufferFound) => {
     setGameFinished(true);
+    setBlufWin(blufferFound);
   })
 
   const handleDrawerInfo = (data) => {
@@ -361,7 +363,16 @@ function App() {
       )}
 
       {gameFinished && (
-        <div className="text-2xl"> {"Game Over!"} </div>
+        <div>
+          <div className="text-2xl"> {"Game Over!"} </div>
+          {blufWin&& (
+            <div className = "text-xl"> {"The bluffer was found - Players win"} </div>
+          )}
+
+          {!blufWin && (
+            <div className = "text-xl"> {"The bluffer was not found - Bluffer wins"} </div>
+          )}
+        </div>
       )}
     </div>
   );
