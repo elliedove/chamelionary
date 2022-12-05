@@ -338,19 +338,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("vote-cast", (votedPlayer) => {
-    if (socket.id != votedPlayer) {
-      gameInfo.votes[socket.id] = votedPlayer;
-      gameInfo.num_votes[votedPlayer] += 1;
-      console.log("vote: " + gameInfo.names[votedPlayer]);
-      // prints each player's vote
-      console.log(gameInfo.votes);
-      // prints each player's vote count
-      console.log(gameInfo.num_votes);
-      if (Object.keys(gameInfo.votes).length == numberReady){
-        // count all the votes
-        console.log("everyone has voted!");
-        continue_game = tally_votes();
-      }
+    gameInfo.votes[socket.id] = votedPlayer;
+    gameInfo.num_votes[votedPlayer] += 1;
+    console.log("vote: " + gameInfo.names[votedPlayer]);
+    // prints each player's vote
+    console.log(gameInfo.votes);
+    // prints each player's vote count
+    console.log(gameInfo.num_votes);
+    if (Object.keys(gameInfo.votes).length == numberReady){
+      // count all the votes
+      console.log("everyone has voted!");
+      continue_game = tally_votes();
     }
   });
 

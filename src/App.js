@@ -22,6 +22,7 @@ function App() {
   const [sideBarColors, setSideBarColors] = useState([]);
   const [playerIds, setPlayerIds] = useState([]);
   const [playerInfo, setPlayerInfo] = useState({});
+  const [voted, setVoted] = useState("");
   const [votingDone, setVotingDone] = useState(false);
   const [votes, setVotes] = useState({});
   const [gameFinished, setGameFinished] = useState(false);
@@ -89,6 +90,7 @@ function App() {
   socket.on("reset-drawingOver", () => {
     setDrawingOver(false);
     setVotingDone(false);
+    setVoted("");
   });
 
   socket.on("receive-message", (receivedMessage) => {
@@ -177,6 +179,7 @@ function App() {
   };
 
   const handleVoteClick = (playerId) => {
+    setVoted(playerInfo[playerId]);
     socket.emit("vote-cast", playerId);
   };
 
@@ -304,7 +307,7 @@ function App() {
 
           <div>
             <div className="bg-gray-200 absolute max-h-96 inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
-              {drawingOver && !votingDone &&(
+              {drawingOver && !voted &&(
                 <div>
                   <h1 className="text-2xl">{"Time to vote!"}</h1>
                   <h2 className="text-xl">{"Players:"}</h2>
@@ -318,6 +321,14 @@ function App() {
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {voted && !votingDone &&(
+                <div>
+                  <h1 className="text-2xl">{"You voted for " + voted + "!"}</h1>
+                  <h2 className="text-xl">{"Please wait for others to vote"}</h2>
+                  
                 </div>
               )}
 
@@ -364,13 +375,33 @@ function App() {
 
       {gameFinished && (
         <div>
-          <div className="text-2xl"> {"Game Over!"} </div>
-          {blufWin&& (
-            <div className = "text-xl"> {"The bluffer was found - Players win"} </div>
+          
+          {blufWin && word === "" && (
+            <div>
+              <div className="text-2xl"> {"You lose!"} </div>
+              <div className = "text-xl"> {"The bluffer was found - Players win!"} </div>
+            </div>
           )}
 
-          {!blufWin && (
-            <div className = "text-xl"> {"The bluffer was not found - Bluffer wins"} </div>
+          {!blufWin && word === "" && (
+            <div>
+              <div className="text-2xl"> {"You win!"} </div>
+              <div className = "text-xl"> {"The bluffer was not found - Bluffer wins!"} </div>
+            </div>
+          )}
+
+          {blufWin && word !== "" && (
+            <div>
+              <div className="text-2xl"> {"You win!"} </div>
+              <div className = "text-xl"> {"The bluffer was found - Players win!"} </div>
+            </div>
+          )}
+
+          {!blufWin && word !== "" &&(
+            <div>
+              <div className="text-2xl"> {"You lose!"} </div>,
+              <div className = "text-xl"> {"The bluffer was not found - Bluffer wins!"} </div>
+            </div>
           )}
         </div>
       )}
