@@ -129,21 +129,28 @@ function tally_votes() {
   // var to hold results of whether bluffer lost or not
   var game_over_after_voting = false;
   // get player with highest number of votes in gameInfo.num_votes
-  var received_highest_votes = Object.entries(gameInfo.num_votes).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  var received_highest_votes = Object.entries(gameInfo.num_votes).reduce(
+    (a, b) => (a[1] > b[1] ? a : b)
+  )[0];
   // print the curr person with the most votes
-  console.log("player who received the most votes is: " + received_highest_votes);
+  console.log(
+    "player who received the most votes is: " + received_highest_votes
+  );
   // was the most voted for player the bluffer?
-  console.log(received_highest_votes === bluffer ? game_over_after_voting = true : game_over_after_voting = false);
+  console.log(
+    received_highest_votes === bluffer
+      ? (game_over_after_voting = true)
+      : (game_over_after_voting = false)
+  );
 
   io.emit("voting-complete", gameInfo.num_votes);
-  if (game_over_after_voting){
+  if (game_over_after_voting) {
     console.log("person is bluffer");
     return false;
-  }else{
+  } else {
     console.log("person is NOT bluffer");
     return true;
   }
-
 }
 
 io.on("connection", (socket) => {
@@ -183,6 +190,7 @@ io.on("connection", (socket) => {
         colors.push([
           gameInfo["names"][key],
           allColors[gameInfo["colors"][key]],
+          key,
         ]);
       }
     }
@@ -225,6 +233,7 @@ io.on("connection", (socket) => {
           colors.push([
             gameInfo["names"][key],
             allColors[gameInfo["colors"][key]],
+            key,
           ]);
         }
       }
@@ -345,7 +354,7 @@ io.on("connection", (socket) => {
     console.log(gameInfo.votes);
     // prints each player's vote count
     console.log(gameInfo.num_votes);
-    if (Object.keys(gameInfo.votes).length == numberReady){
+    if (Object.keys(gameInfo.votes).length == numberReady) {
       // count all the votes
       console.log("everyone has voted!");
       continue_game = tally_votes();
@@ -353,19 +362,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("next-round", () => {
-    if (continue_game){
-      if (num_rounds == 2) { //2 rounds finished, bluffer was not found
+    if (continue_game) {
+      if (num_rounds == 2) {
+        //2 rounds finished, bluffer was not found
         io.emit("game-finished", false);
         continue_game = false;
-      }else{
+      } else {
         // call function to continue game loop
         console.log("calling function to continue game loop...");
         io.emit("reset-drawingOver");
         // clear values in gameInfo.votes
         gameInfo.votes = {};
         playGame(numberReady);
-      }   
-    }else{
+      }
+    } else {
       // call function to end loop
       console.log("calling function to end game");
       io.emit("game-finished", true);

@@ -324,15 +324,15 @@ function App() {
                 <div>
                   <h1 className="text-2xl">{"Time to vote!"}</h1>
                   <h2 className="text-xl">{"Players:"}</h2>
-                  {playerIds.map((player) => {
-                    if (socket.id !== player) {
+                  {sideBarColors.map((triplet) => {
+                    if (socket.id !== triplet[2]) {
                       return (
                         <div className="flex justify-center items-center mt-2">
                           <button
-                            className="btn-sm bg-blue-500 hover:bg-blue-700 text-white"
-                            onClick={() => handleVoteClick(player)}
+                            className={`btn-sm btn-${triplet[1]} hover:bg-blue-700 text-white`}
+                            onClick={() => handleVoteClick(triplet[2])}
                           >
-                            {playerInfo[player]}
+                            {triplet[0]}
                           </button>
                         </div>
                       );
