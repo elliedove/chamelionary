@@ -120,7 +120,7 @@ function App() {
   socket.on("game-finished", (blufferFound) => {
     setGameFinished(true);
     setBlufWin(blufferFound);
-  })
+  });
 
   const handleDrawerInfo = (data) => {
     setDrawerInfo(data);
@@ -204,7 +204,7 @@ function App() {
             <button className="btn" onClick={handleReadyClick}>
               {readyButtonText()}
             </button>
-            
+
             <p>
               {readyInfo[0]}/{readyInfo[1]} players are ready
             </p>
@@ -320,32 +320,33 @@ function App() {
 
           <div>
             <div className="bg-gray-200 absolute max-h-96 inset-y-24 left-10 w-1/4 max-w-sm rounded shadow-lg">
-              {drawingOver && !voted &&(
+              {drawingOver && !voted && (
                 <div>
                   <h1 className="text-2xl">{"Time to vote!"}</h1>
                   <h2 className="text-xl">{"Players:"}</h2>
-                  <div className="btn-group">
-                    {playerIds.map((player) => {
-                      if (socket.id !== player){
-                        return (
+                  {playerIds.map((player) => {
+                    if (socket.id !== player) {
+                      return (
+                        <div className="flex justify-center items-center mt-2">
                           <button
                             className="btn-sm bg-blue-500 hover:bg-blue-700 text-white"
                             onClick={() => handleVoteClick(player)}
                           >
-                          {playerInfo[player]}
+                            {playerInfo[player]}
                           </button>
-                        )
-                      }
-                    })}
-                  </div>
+                        </div>
+                      );
+                    }
+                  })}
                 </div>
               )}
 
-              {voted && !votingDone &&(
+              {voted && !votingDone && (
                 <div>
                   <h1 className="text-2xl">{"You voted for " + voted + "!"}</h1>
-                  <h2 className="text-xl">{"Please wait for others to vote"}</h2>
-                  
+                  <h2 className="text-xl">
+                    {"Please wait for others to vote"}
+                  </h2>
                 </div>
               )}
 
@@ -354,14 +355,12 @@ function App() {
                   <h1 className="text-2xl">{"Results:"}</h1>
                   <ul>
                     {playerIds.map((player) => (
-                      <li>
-                        {playerInfo[player] + ": " + votes[player]}
-                      </li>
+                      <li>{playerInfo[player] + ": " + votes[player]}</li>
                     ))}
                   </ul>
-                  <button 
-                  className="btn-md bg-blue-500 hover:bg-blue-700 text-white"
-                  onClick={() => handleContinueClick()}
+                  <button
+                    className="btn-md bg-blue-500 hover:bg-blue-700 text-white"
+                    onClick={() => handleContinueClick()}
                   >
                     {"Continue"}
                   </button>
@@ -375,7 +374,11 @@ function App() {
                       if (playerInfo[socket.id] === pair[0]) {
                         return (
                           <div className="flex items-center justify-center mt-2">
-                            <div><span style={{fontWeight: 'bold'}}>{pair[0]}</span></div>
+                            <div>
+                              <span style={{ fontWeight: "bold" }}>
+                                {pair[0]}
+                              </span>
+                            </div>
                             <div
                               className={`box-content rounded btn-${pair[1]} ml-4 h-8 w-8`}
                             ></div>
@@ -405,28 +408,40 @@ function App() {
           {blufWin && word === "" && (
             <div>
               <div className="text-2xl"> {"You lose!"} </div>
-              <div className = "text-xl"> {"The bluffer was found - Players win!"} </div>
+              <div className="text-xl">
+                {" "}
+                {"The bluffer was found - Players win!"}{" "}
+              </div>
             </div>
           )}
 
           {!blufWin && word === "" && (
             <div>
               <div className="text-2xl"> {"You win!"} </div>
-              <div className = "text-xl"> {"The bluffer was not found - Bluffer wins!"} </div>
+              <div className="text-xl">
+                {" "}
+                {"The bluffer was not found - Bluffer wins!"}{" "}
+              </div>
             </div>
           )}
 
           {blufWin && word !== "" && (
             <div>
               <div className="text-2xl"> {"You win!"} </div>
-              <div className = "text-xl"> {"The bluffer was found - Players win!"} </div>
+              <div className="text-xl">
+                {" "}
+                {"The bluffer was found - Players win!"}{" "}
+              </div>
             </div>
           )}
 
-          {!blufWin && word !== "" &&(
+          {!blufWin && word !== "" && (
             <div>
               <div className="text-2xl"> {"You lose!"} </div>
-              <div className = "text-xl"> {"The bluffer was not found - Bluffer wins!"} </div>
+              <div className="text-xl">
+                {" "}
+                {"The bluffer was not found - Bluffer wins!"}{" "}
+              </div>
             </div>
           )}
         </div>
