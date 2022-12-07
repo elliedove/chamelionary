@@ -393,26 +393,26 @@ function App() {
               {!drawingOver && sideBarColors.length && (
                 <div className="">
                   <div>
-                    {sideBarColors.map((pair) => {
-                      if (playerInfo[socket.id] === pair[0]) {
+                    {sideBarColors.map((triplet) => {
+                      if (socket.id === triplet[2]) {
                         return (
                           <div className="flex items-center justify-center mt-2">
                             <div>
                               <span style={{ fontWeight: "bold" }}>
-                                {pair[0]}
+                                {triplet[0]}
                               </span>
                             </div>
                             <div
-                              className={`box-content rounded btn-${pair[1]} ml-4 h-8 w-8`}
+                              className={`box-content rounded btn-${triplet[1]} ml-4 h-8 w-8`}
                             ></div>
                           </div>
                         );
                       } else {
                         return (
                           <div className="flex items-center justify-center mt-2">
-                            <div>{pair[0]}</div>
+                            <div>{triplet[0]}</div>
                             <div
-                              className={`box-content rounded btn-${pair[1]} ml-4 h-8 w-8`}
+                              className={`box-content rounded btn-${triplet[1]} ml-4 h-8 w-8`}
                             ></div>
                           </div>
                         );
