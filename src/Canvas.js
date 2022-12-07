@@ -1,4 +1,4 @@
-const TURN_LENGTH_SEC = 5;
+const TURN_LENGTH_SEC = 30;
 
 function Canvas(
   socket,

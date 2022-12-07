@@ -282,7 +282,7 @@ io.on("connection", (socket) => {
     // add their ready up to the list
     gameInfo["ready"][socket.id] = false;
     // if player unreadies, remove them from player order list
-    playerOrder.splice(playerOrder.indexOf(socket.id));
+    playerOrder.splice(playerOrder.indexOf(socket.id), 1);
     numberReady--;
     var totalConnected = Object.keys(gameInfo["ready"]).length;
     io.sockets.emit("lobby-not-ready", [numberReady, totalConnected]);
