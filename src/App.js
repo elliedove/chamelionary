@@ -6,6 +6,7 @@ import Canvas from "./Canvas";
 const socket = io("http://localhost:3030");
 
 const USERNAME_LENGTH = 15;
+const GAME_END_WAIT_SEC = 10;
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -38,10 +39,22 @@ function App() {
 
     // receive names and colors
     socket.on("names-colors", (data) => {
-      console.log([...data]);
-      // console.log(data[0]);
       setSideBarColors([...data]);
-      // console.log(sideBarColors);
+    });
+
+    socket.on("game-finished", (blufferFound) => {
+      setGameFinished(true);
+      setBlufWin(blufferFound);
+
+      // wait 15 seconds
+      let timer = GAME_END_WAIT_SEC;
+      let interval = setInterval(function () {
+        if (timer == -1) {
+          resetAllState();
+          clearInterval(interval);
+        }
+        timer -= 1;
+      }, 1000);
     });
 
     return () => {
@@ -49,6 +62,7 @@ function App() {
       socket.off("drawer-check");
       socket.off("disconnect");
       socket.off("names-colors");
+      socket.off("game-finished");
     };
   }, []);
 
@@ -115,11 +129,6 @@ function App() {
   socket.on("voting-complete", (voteDict) => {
     setVotingDone(true);
     setVotes(voteDict);
-  });
-
-  socket.on("game-finished", (blufferFound) => {
-    setGameFinished(true);
-    setBlufWin(blufferFound);
   });
 
   const handleDrawerInfo = (data) => {
@@ -194,6 +203,20 @@ function App() {
 
   const handleContinueClick = () => {
     socket.emit("next-round");
+  };
+
+  const resetAllState = () => {
+    // reset everything
+    setLobbyReady(false);
+    setClientReady(false);
+    setSelectedColor(false);
+    setGameFinished(false);
+    setTimeRemaining(0);
+    setVotingDone(false);
+    setVoted(false);
+    setVotes({});
+    setDrawingOver(false);
+    setBlufWin(false);
   };
 
   return (

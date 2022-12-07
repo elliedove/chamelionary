@@ -35,6 +35,36 @@ var bluffer = "";
 var continue_game = true;
 var num_rounds = 0;
 
+function resetState() {
+  gameStarted = false;
+  currWord = "";
+  bluffer = "";
+  continue_game = true;
+  num_rounds = 0;
+  playerOrder = [];
+  playerIndex = 0;
+  numberReady = 0;
+
+  gameInfo["names"] = {};
+  gameInfo["num_votes"] = {};
+  gameInfo["votes"] = {};
+  gameInfo["colors"] = {};
+
+  // reset all ready statuses
+  for (var key in gameInfo["ready"]) {
+    gameInfo["ready"][key] = false;
+  }
+
+  // reset bluffer status
+  for (var key in gameInfo["bluffer"]) {
+    gameInfo["bluffer"][key] = false;
+  }
+
+  // tell all clients no one is ready
+  var totalConnected = Object.keys(gameInfo["ready"]).length;
+  io.sockets.emit("lobby-not-ready", [0, totalConnected]);
+}
+
 function chooseWord(filename) {
   // read in words from file line-by-line
   try {
@@ -367,6 +397,7 @@ io.on("connection", (socket) => {
         //2 rounds finished, bluffer was not found
         io.emit("game-finished", false);
         continue_game = false;
+        resetState();
       } else {
         // call function to continue game loop
         console.log("calling function to continue game loop...");
@@ -379,6 +410,7 @@ io.on("connection", (socket) => {
       // call function to end loop
       console.log("calling function to end game");
       io.emit("game-finished", true);
+      resetState();
     }
   });
 
