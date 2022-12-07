@@ -223,8 +223,18 @@ function App() {
     <div id="App" className="App">
       {!lobbyReady && (
         <div className="flex items-center justify-center min-h-screen w-full">
-          <div>
-            <button className="btn" onClick={handleReadyClick}>
+          <div className="mt-5">
+            <div className="text-6xl mt-5">
+              {"Welcome to Chamelionary!"}
+            </div>
+            <div className="text-3xl mt-5">
+              {"A bluffing game"}
+            </div>
+            <div className="text-xl mt-5">
+              When you start the game, you will be chosen as the bluffer or be given a word. <br></br>If you see a word, draw a line to create a collaborative image. <br></br>If you are the bluffer, try to blend in!
+              When the voting screen pops up, vote for whoever seems the most suspicious! <br></br>The game will end after two turns, or once the bluffer is found.<br></br>
+            </div>
+            <button className="btn mt-5" onClick={handleReadyClick}>
               {readyButtonText()}
             </button>
 
@@ -433,7 +443,7 @@ function App() {
               <div className="text-2xl"> {"You lose!"} </div>
               <div className="text-xl">
                 {" "}
-                {"The bluffer was found - Players win!"}{" "}
+                {"The bluffer was found - Players win!"}{" Please wait for game to restart."}
               </div>
             </div>
           )}
@@ -443,7 +453,7 @@ function App() {
               <div className="text-2xl"> {"You win!"} </div>
               <div className="text-xl">
                 {" "}
-                {"The bluffer was not found - Bluffer wins!"}{" "}
+                {"The bluffer was not found - Bluffer wins!"}{" Please wait for game to restart."}
               </div>
             </div>
           )}
@@ -453,7 +463,7 @@ function App() {
               <div className="text-2xl"> {"You win!"} </div>
               <div className="text-xl">
                 {" "}
-                {"The bluffer was found - Players win!"}{" "}
+                {"The bluffer was found - Players win!"}{" Please wait for game to restart."}
               </div>
             </div>
           )}
@@ -463,7 +473,7 @@ function App() {
               <div className="text-2xl"> {"You lose!"} </div>
               <div className="text-xl">
                 {" "}
-                {"The bluffer was not found - Bluffer wins!"}{" "}
+                {"The bluffer was not found - Bluffer wins!"}{" Please wait for game to restart."}
               </div>
             </div>
           )}

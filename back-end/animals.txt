@@ -79,7 +79,8 @@ turtle
 salamander
 monkey
 warthog
-fish. Ferret
+fish
+Ferret
 wombat
 groundhog
 bumble bee
